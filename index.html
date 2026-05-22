@@ -1,110 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Growthory Cafe Finder — Intelligence Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
+<div class="crm-app">
 
-    <div class="dashboard-container">
-        
-        <aside class="preview-panel">
-            <div class="device-mockup">
-                <div class="device-notch"></div>
-                <div class="device-screen">
-                    <iframe name="mobile_frame" src="https://m.facebook.com/" title="Mobile Content View"></iframe>
-                </div>
-                <div class="device-home-bar"></div>
-            </div>
-        </aside>
+    <!-- ===================================================== -->
+    <!-- SIDEBAR -->
+    <!-- ===================================================== -->
 
-        <main class="main-panel">
-            
-            <header class="dashboard-header">
-                <div class="brand-identity">
-                    <span class="brand-badge">PRO EDITION</span>
-                    <h1>Growthory <span class="accent-text">Cafe Finder</span></h1>
-                </div>
-                
-                <div class="action-bar">
-                    <button class="btn btn-secondary" onclick="triggerBatchOutreach()">
-                        <span class="btn-icon">✉</span> Batch Outreach
-                    </button>
-                    <button class="btn btn-secondary" id="toggle-view-btn" onclick="toggleView()">
-                        <span class="btn-icon">🔀</span> View Segregated List
-                    </button>
-                    <button class="btn btn-secondary" onclick="exportCSV()">
-                        <span class="btn-icon">📥</span> Export CSV
-                    </button>
-                    <button class="btn btn-primary" id="refresh-btn" onclick="forceRefreshData()">
-                        <span class="btn-icon">🔄</span> Refresh Core
-                    </button>
-                    <button class="btn btn-danger" onclick="triggerBatchDelete()">
-                        <span class="btn-icon">🗑️</span> Delete Selected
-                    </button>
-                </div>
-            </header>
+    <aside class="sidebar">
 
-            <section class="system-status-bar">
-                <div class="status-indicator">
-                    <span class="status-dot live" id="system-mode-dot"></span>
-                    <span class="status-text" id="system-mode-text">Connecting to Node...</span>
-                </div>
-                <div class="status-timestamp">
-                    Sync Timestamp: <span id="sync-timestamp">Never Cached</span>
-                </div>
-            </section>
+        <div class="brand">
 
-            <div id="main-workspace-view" class="workspace-viewport">
-                <div class="workspace-card">
-                    <div class="table-header-row">
-                        <div class="col-check"><input type="checkbox" id="master-checkbox" onclick="toggleSelectAll(this)"></div>
-                        <div class="col-social">Channels</div>
-                        <div class="col-identity">Business Entity & Location</div>
-                        <div class="col-metric">Post Gap</div>
-                        <div class="col-metric">Engagement</div>
-                        <div class="col-metric">Growth (Wk)</div>
-                        <div class="col-score">Opportunity</div>
-                        <div class="col-actions">Pipeline Route</div>
-                    </div>
-                    <div id="main-cafe-list-container" class="list-payload-container">
-                        <div class="loading-state">Assembling live intelligence matrix...</div>
-                    </div>
-                </div>
+            <div class="brand-logo">
+                G
             </div>
 
-            <div id="segregated-workspace-view" class="workspace-viewport" style="display: none;">
-                <div class="segregated-columns-grid">
-                    
-                    <div class="pipeline-column status-pending">
-                        <div class="column-header">
-                            <h2><span class="badge">●</span> PENDING LEAD ROUTE</h2>
-                            <span class="counter" id="pending-count-badge">0</span>
-                        </div>
-                        <div id="pending-list-container" class="pipeline-scroll-area">
-                            </div>
-                    </div>
+            <div class="brand-text">
 
-                    <div class="pipeline-column status-rejected">
-                        <div class="column-header">
-                            <h2><span class="badge">●</span> REJECTED / ARCHIVED</h2>
-                            <span class="counter" id="rejected-count-badge">0</span>
-                        </div>
-                        <div id="rejected-list-container" class="pipeline-scroll-area">
-                            </div>
-                    </div>
+                <h1>Growthory CRM</h1>
 
-                </div>
+                <p>Lead Intelligence System</p>
+
             </div>
 
-        </main>
-    </div>
+        </div>
 
-    <script src="/static/js/script.js"></script>
-</body>
-</html>
+        <div class="sidebar-section">
+
+            <div class="sidebar-title">
+                WORKSPACE
+            </div>
+
+            <button
+                class="sidebar-btn active"
+                id="main-list-btn"
+            >
+                <span>📊</span>
+                Main List
+            </button>
+
+            <button
+                class="sidebar-btn"
+                id="pending-list-btn"
+            >
+                <span>🟡</span>
+                Pending
+            </button>
+
+            <button
+                class="sidebar-btn"
+                id="rejected-list-btn"
+            >
+                <span>🔴</span>
+                Rejected
+            </button>
+
+        </div>
+
+        <div class="sidebar-section">
+
+            <div class="sidebar-title">
+                ACTIONS
+            </div>
+
+            <button
+                class="sidebar-btn"
+                id="refresh-btn"
+            >
+                <span>🔄</span>
+                Refresh Metrics
+            </button>
+
+            <button
+                class="sidebar-btn"
+                id="export-btn"
+            >
+                <span>📁</span>
+                Export CSV
+            </button>
+
+            <button
+                class="sidebar-btn danger"
+                id="delete-selected-btn"
+            >
+                <span>🗑️
