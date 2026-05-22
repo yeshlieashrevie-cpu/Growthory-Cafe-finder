@@ -210,16 +210,12 @@ def seed_starter_cafes():
     conn.close()
 
 # =========================================================
-# ADD CAFE
+# UPDATE STATUS
 # =========================================================
 
-def add_cafe(
-    name,
-    location,
-    facebook_url,
-    instagram_url,
-    messenger_url,
-    map_url
+def update_cafe_status(
+    cafe_id,
+    status
 ):
 
     conn = get_connection()
@@ -228,52 +224,16 @@ def add_cafe(
 
     c.execute("""
 
-    INSERT INTO cafes (
+    UPDATE cafes
 
-        name,
-        location,
+    SET status=?
 
-        facebook_url,
-        instagram_url,
-        messenger_url,
-        map_url,
-
-        avg_gap_days,
-        avg_engagement,
-        weekly_followers,
-
-        posting_history,
-        engagement_history,
-        followers_history,
-
-        status,
-        created_at
-
-    )
-
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    WHERE id=?
 
     """, (
 
-        name,
-        location,
-
-        facebook_url,
-        instagram_url,
-        messenger_url,
-        map_url,
-
-        4.2,
-        8.5,
-        12,
-
-        json.dumps([2,3,4,5,4]),
-        json.dumps([5,7,8,9,10]),
-        json.dumps([100,120,135,150,165]),
-
-        "main",
-
-        datetime.now().isoformat()
+        status,
+        cafe_id
 
     ))
 
@@ -388,6 +348,57 @@ with st.sidebar:
     st.markdown("---")
 
     cafes_count = len(get_cafes())
+
+    # =========================================================
+# STATUS ACTIONS
+# =========================================================
+
+query_params = st.query_params
+
+if "move_to" in query_params:
+
+    cafe_id = int(
+        query_params["move_to"]
+    )
+
+    update_cafe_status(
+        cafe_id,
+        "pending"
+    )
+
+    st.query_params.clear()
+
+    st.rerun()
+
+if "reject" in query_params:
+
+    cafe_id = int(
+        query_params["reject"]
+    )
+
+    update_cafe_status(
+        cafe_id,
+        "rejected"
+    )
+
+    st.query_params.clear()
+
+    st.rerun()
+
+if "restore" in query_params:
+
+    cafe_id = int(
+        query_params["restore"]
+    )
+
+    update_cafe_status(
+        cafe_id,
+        "main"
+    )
+
+    st.query_params.clear()
+
+    st.rerun()
 
     st.metric(
         "Total Cafes",
