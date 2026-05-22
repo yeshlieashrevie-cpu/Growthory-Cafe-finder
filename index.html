@@ -1,158 +1,402 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CafePulse — Meta Insights Tracker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growthory Cafe Finder</title>
+    <style>
+        /* ─── GLOBAL THEME ─── */
+        :root {
+            --bg-purple: #5d35b0;
+            --box-purple: #3a1a80;
+            --neon-green: #b2ff33;
+            --neon-red: #ff3333;
+            --text-light: #ffffff;
+            --text-dark: #000000;
+        }
+
+        body {
+            background-color: var(--bg-purple);
+            color: var(--text-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* ─── LAYOUT GRID ─── */
+        .mobile-pane {
+            flex: 0 0 350px;
+            background: #fff;
+            border: 15px solid #222;
+            border-radius: 35px;
+            overflow: hidden;
+            height: calc(100vh - 40px);
+            margin-right: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .mobile-pane iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .main-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ─── HEADER & NAVIGATION ─── */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--box-purple);
+            padding-bottom: 10px;
+        }
+
+        .logo h1 {
+            color: var(--neon-green);
+            margin: 0;
+            font-size: 24px;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        .nav-buttons button {
+            padding: 10px 15px;
+            margin-left: 10px;
+            font-weight: 800;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 12px;
+            transition: transform 0.1s;
+        }
+
+        .nav-buttons button:active { transform: scale(0.95); }
+        .btn-dark { background-color: #000; color: #fff; }
+        .btn-lime { background-color: var(--neon-green); color: #000; }
+        .btn-red { background-color: var(--neon-red); color: #fff; }
+
+        /* ─── LIST VIEWS ─── */
+        .view-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .view-container::-webkit-scrollbar { width: 8px; }
+        .view-container::-webkit-scrollbar-thumb { background: var(--box-purple); border-radius: 4px; }
+
+        .cafe-row {
+            display: flex;
+            align-items: center;
+            background-color: var(--box-purple);
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .checkbox { margin-right: 15px; width: 20px; height: 20px; cursor: pointer; }
+
+        .social-icons a {
+            display: inline-flex; justify-content: center; align-items: center;
+            width: 30px; height: 30px; border-radius: 6px; margin-right: 5px;
+            text-decoration: none; font-weight: bold; color: white; font-size: 14px;
+        }
+        .icon-fb { background: #1877f2; }
+        .icon-ig { background: #e1306c; }
+        .icon-map { background: #fff; color: #000 !important; }
+        .icon-msg { background: #00b2ff; }
+
+        .cafe-name-loc {
+            flex: 1; font-weight: bold; margin-left: 15px; font-size: 14px;
+        }
+        .cafe-name-loc span { color: var(--neon-green); margin-left: 10px; border-left: 2px solid var(--neon-green); padding-left: 10px; }
+
+        /* ─── METRIC BOXES & TOOLTIPS ─── */
+        .metric-box {
+            position: relative;
+            width: 70px; height: 40px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; margin-left: 10px; cursor: pointer;
+            font-size: 16px; color: var(--text-dark);
+        }
+        .bg-green { background-color: var(--neon-green); }
+        .bg-red { background-color: var(--neon-red); color: white; }
+
+        .tooltip {
+            visibility: hidden; opacity: 0;
+            position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
+            background-color: #000; padding: 15px; border-radius: 12px;
+            z-index: 100; transition: opacity 0.2s; box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            width: max-content;
+        }
+        .tooltip::before {
+            content: ""; position: absolute; bottom: 100%; left: 50%; margin-left: -10px;
+            border-width: 10px; border-style: solid; border-color: transparent transparent black transparent;
+        }
+        .metric-box:hover .tooltip { visibility: visible; opacity: 1; }
+        .tooltip-title { font-size: 10px; text-align: center; margin-bottom: 10px; letter-spacing: 1px; color: white; }
+
+        /* ─── SEGREGATION BUTTONS ─── */
+        .action-btns { display: flex; margin-left: 15px; }
+        .arrow-btn {
+            width: 35px; height: 40px; border: none; font-size: 20px; font-weight: bold;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .arrow-green { background-color: var(--neon-green); color: #000; border-radius: 8px 0 0 8px; }
+        .arrow-red { background-color: var(--neon-red); color: white; border-radius: 0 8px 8px 0; }
+        
+        .list-btn { padding: 10px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; margin-left: 5px; }
+
+        /* ─── SEGREGATED VIEW SPLIT ─── */
+        .segregated-split { display: flex; gap: 20px; height: 100%; }
+        .column { flex: 1; display: flex; flex-direction: column; }
+        .column h2 { background: var(--box-purple); padding: 10px; border-radius: 8px; text-align: center; font-size: 16px; }
+        .col-pending h2 { color: var(--neon-green); }
+        .col-rejected h2 { color: var(--neon-red); }
+
+    </style>
 </head>
 <body>
 
-  <!-- ░░ BACKGROUND CANVAS ░░ -->
-  <canvas id="bgCanvas"></canvas>
-
-  <!-- ░░ SCAN LINE OVERLAY ░░ -->
-  <div class="scanline-overlay"></div>
-
-  <!-- ═══════════════════════════════════════════ HEADER ═══ -->
-  <header class="app-header">
-    <div class="header-inner">
-
-      <div class="brand">
-        <div class="brand-icon">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <circle cx="14" cy="14" r="13" stroke="url(#bgi)" stroke-width="2"/>
-            <path d="M8 18 Q14 8 20 18" stroke="url(#bgi)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <circle cx="14" cy="20" r="2.5" fill="url(#bgi)"/>
-            <defs>
-              <linearGradient id="bgi" x1="0" y1="0" x2="28" y2="28">
-                <stop offset="0%" stop-color="#ff8c42"/>
-                <stop offset="100%" stop-color="#ff3d6e"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <div class="brand-text">
-          <span class="brand-name">CAFE<span class="brand-accent">PULSE</span></span>
-          <span class="brand-sub">Meta Insights Intelligence</span>
-        </div>
-      </div>
-
-      <div class="header-status">
-        <div class="status-pill" id="statusPill">
-          <span class="pulse-dot"></span>
-          <span id="statusText">Loading...</span>
-        </div>
-        <div class="demo-badge" id="demoBadge" style="display:none">
-          DEMO MODE
-        </div>
-      </div>
-
-      <div class="header-actions">
-        <div class="last-updated-wrap">
-          <span class="last-updated-label">Last synced</span>
-          <span class="last-updated-val" id="lastUpdated">—</span>
-        </div>
-        <button class="btn-refresh" id="refreshBtn" title="Refresh data now">
-          <svg class="refresh-icon" id="refreshIcon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M13.65 2.35A8 8 0 1 0 15 8h-1.5A6.5 6.5 0 1 1 8 1.5a6.45 6.45 0 0 1 4.6 1.9L10 6h5V1l-1.35 1.35z" fill="currentColor"/>
-          </svg>
-          <span>Refresh</span>
-        </button>
-      </div>
-
+    <div class="mobile-pane">
+        <iframe name="mobile_frame" src="https://m.facebook.com/" title="Mobile Preview"></iframe>
     </div>
 
-    <!-- Next refresh countdown -->
-    <div class="refresh-countdown" id="refreshCountdown">
-      Next auto-refresh: <span id="countdownTimer">—</span>
-    </div>
-  </header>
+    <div class="main-pane">
+        <header>
+            <div class="logo">
+                <h1>Growthory<br>Cafe Finder</h1>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-dark" onclick="alert('Batch Outreach triggered for checked items!')">Batch Outreach</button>
+                <button class="btn-dark" id="toggle-view-btn" onclick="toggleView()">View Segregated List</button>
+                <button class="btn-dark" onclick="alert('Downloading CSV...')">Download CSV</button>
+                <button class="btn-lime" onclick="loadData()">Refresh List</button>
+                <button class="btn-red" onclick="alert('Deleting checked items...')">Delete</button>
+            </div>
+        </header>
 
-  <!-- ═══════════════════════════════════════════ HERO ═══ -->
-  <section class="hero-section">
-    <div class="hero-inner">
-      <div class="hero-eyebrow">DAILY OPPORTUNITY BOARD</div>
-      <h1 class="hero-title">Cafe Accounts That Need <span class="hero-highlight">Your Help</span></h1>
-      <p class="hero-sub">Ranked by posting inactivity · Low engagement · Slow follower growth</p>
+        <div id="main-view" class="view-container">
+            </div>
 
-      <div class="hero-stats" id="heroStats">
-        <div class="hstat">
-          <span class="hstat-val" id="hstatCritical">—</span>
-          <span class="hstat-label">Critical</span>
+        <div id="segregated-view" class="view-container" style="display: none;">
+            <div class="segregated-split">
+                <div class="column col-pending">
+                    <h2>PENDING LIST</h2>
+                    <div id="pending-list"></div>
+                </div>
+                <div class="column col-rejected">
+                    <h2>REJECTED LIST</h2>
+                    <div id="rejected-list"></div>
+                </div>
+            </div>
         </div>
-        <div class="hstat-divider"></div>
-        <div class="hstat">
-          <span class="hstat-val" id="hstatAvgGap">—</span>
-          <span class="hstat-label">Avg Gap (days)</span>
-        </div>
-        <div class="hstat-divider"></div>
-        <div class="hstat">
-          <span class="hstat-val" id="hstatAvgEng">—</span>
-          <span class="hstat-label">Avg Engagement</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════ RANKING LEGEND ═══ -->
-  <div class="rank-legend">
-    <span class="legend-item"><span class="legend-dot critical"></span>Critical (&gt;40 pts)</span>
-    <span class="legend-item"><span class="legend-dot high"></span>High (20–40)</span>
-    <span class="legend-item"><span class="legend-dot medium"></span>Medium (10–20)</span>
-    <span class="legend-item"><span class="legend-dot low"></span>Low (&lt;10)</span>
-    <span class="legend-sep">|</span>
-    <span class="legend-note">Click any card for full breakdown</span>
-  </div>
-
-  <!-- ═══════════════════════════════════════════ MAIN LIST ═══ -->
-  <main class="list-container" id="cafeList">
-
-    <!-- Skeleton loaders shown before data arrives -->
-    <div class="skeleton-grid" id="skeletonGrid">
-      <div class="skeleton-card" style="--i:0"><div class="skel-rank"></div><div class="skel-body"><div class="skel-line s80"></div><div class="skel-line s50"></div><div class="skel-metrics"><div class="skel-metric"></div><div class="skel-metric"></div><div class="skel-metric"></div></div></div></div>
-      <div class="skeleton-card" style="--i:1"><div class="skel-rank"></div><div class="skel-body"><div class="skel-line s70"></div><div class="skel-line s40"></div><div class="skel-metrics"><div class="skel-metric"></div><div class="skel-metric"></div><div class="skel-metric"></div></div></div></div>
-      <div class="skeleton-card" style="--i:2"><div class="skel-rank"></div><div class="skel-body"><div class="skel-line s90"></div><div class="skel-line s55"></div><div class="skel-metrics"><div class="skel-metric"></div><div class="skel-metric"></div><div class="skel-metric"></div></div></div></div>
-      <div class="skeleton-card" style="--i:3"><div class="skel-rank"></div><div class="skel-body"><div class="skel-line s65"></div><div class="skel-line s45"></div><div class="skel-metrics"><div class="skel-metric"></div><div class="skel-metric"></div><div class="skel-metric"></div></div></div></div>
-      <div class="skeleton-card" style="--i:4"><div class="skel-rank"></div><div class="skel-body"><div class="skel-line s80"></div><div class="skel-line s50"></div><div class="skel-metrics"><div class="skel-metric"></div><div class="skel-metric"></div><div class="skel-metric"></div></div></div></div>
     </div>
 
-    <!-- Real cards injected here by script.js -->
-    <div class="cards-grid" id="cardsGrid" style="display:none"></div>
+    <script>
+        // State Management
+        let appState = {
+            main: [],
+            pending: [],
+            rejected: [],
+            currentView: 'main'
+        };
 
-  </main>
+        // Dummy Data Generator (matches your app.py backend structure)
+        function generateDummyData() {
+            const mockCafes = [
+                { id: 1, name: "Brewed Awakening", loc: "Makati, Manila", gap: 3, gapHist: [4,2,4,1,3], eng: 8, engHist: [12,9,5,6,8], fol: 12, folHist: [5,10,15,8,12], fb: "brewedawakeningcafe", ig: "brewedawakeningcafe" },
+                { id: 2, name: "The Roast Republic", loc: "BGC, Taguig", gap: 7, gapHist: [10,6,8,5,7], eng: 15, engHist: [20,10,15,12,15], fol: -2, folHist: [5,-5,-2,0,-2], fb: "roastrepublic", ig: "roastrepublic" },
+                { id: 3, name: "Sip & Scribble", loc: "Quezon City", gap: 1, gapHist: [1,2,1,0.5,1], eng: 4, engHist: [3,5,4,2,4], fol: 25, folHist: [20,30,25,25,25], fb: "sipandscribble", ig: "sipandscribble" },
+                { id: 4, name: "Dusk Espresso Bar", loc: "Cebu City", gap: 14, gapHist: [15,12,14,15,14], eng: 2, engHist: [3,1,2,2,2], fol: -10, folHist: [0,-5,-15,-20,-10], fb: "duskespresso", ig: "duskespresso" },
+                { id: 5, name: "Fogged Lens Cafe", loc: "Pasig", gap: 4, gapHist: [3,5,4,4,4], eng: 22, engHist: [20,25,22,21,22], fol: 8, folHist: [5,10,8,9,8], fb: "foggedlenscafe", ig: "foggedlenscafe" }
+            ];
+            appState.main = mockCafes;
+            renderAll();
+        }
 
-  <!-- ═══════════════════════════════════════════ FOOTER ═══ -->
-  <footer class="app-footer">
-    <span>CafePulse &copy; 2025 — Powered by Meta Graph API</span>
-    <span class="footer-sep">·</span>
-    <span>Data refreshes daily at 6:00 AM PH Time</span>
-    <span class="footer-sep">·</span>
-    <span id="footerMode">—</span>
-  </footer>
+        // SVG Sparkline Generator for Tooltips
+        function generateSVG(data, labels, isPercentage = false, isPlusMinus = false) {
+            const w = 280, h = 50;
+            const maxV = Math.max(...data.map(Math.abs)) || 1;
+            
+            let points = data.map((val, i) => {
+                const x = 10 + i * ((w - 20) / 4);
+                // Invert Y axis for drawing
+                const y = h - (Math.max(0.1, Math.abs(val)) / maxV * h * 0.8);
+                return { x, y, val, label: labels[i] };
+            });
 
-  <!-- ═══════════════════════════════════════════ MODAL ═══ -->
-  <div class="modal-backdrop" id="modalBackdrop">
-    <div class="modal-panel" id="modalPanel">
+            let polyline = `<polyline fill="none" stroke="white" stroke-width="2" points="${points.map(p => `${p.x},${p.y}`).join(' ')}" />`;
+            let circles = points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="white" />`).join('');
+            let texts = points.map((p, i) => {
+                let textCol = "#b2ff33"; // default green
+                let labelTxt = p.label;
+                
+                if (isPercentage) {
+                    textCol = p.val < 10 ? "#ff3333" : "#b2ff33";
+                    labelTxt = p.val + "%";
+                } else if (isPlusMinus) {
+                    textCol = p.val < 5 ? "#ff3333" : "#b2ff33";
+                    labelTxt = (p.val > 0 ? "+" : "") + p.val;
+                } else {
+                    // Time gaps
+                    textCol = p.val > 5 ? "#ff3333" : "#b2ff33";
+                    labelTxt = p.val < 1 ? (p.val * 24) + "H" : p.val + "D";
+                }
 
-      <button class="modal-close" id="modalClose" aria-label="Close">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
-      </button>
+                return `<text x="${p.x}" y="${h + 18}" fill="${textCol}" font-size="12" font-weight="bold" text-anchor="middle">${labelTxt}</text>`;
+            }).join('');
 
-      <!-- Modal content injected by script.js -->
-      <div id="modalBody"></div>
+            return `<svg width="${w}px" height="${h + 25}px">${polyline}${circles}${texts}</svg>`;
+        }
 
-    </div>
-  </div>
+        // Render Main List
+        function renderMainList() {
+            const container = document.getElementById('main-view');
+            container.innerHTML = '';
 
-  <!-- ═══════════════════════════════════════════ TOAST ═══ -->
-  <div class="toast-container" id="toastContainer"></div>
+            appState.main.forEach(cafe => {
+                // Metric thresholds
+                const gapCls = cafe.gap > 5 ? 'bg-red' : 'bg-green';
+                const gapTxt = cafe.gap < 1 ? Math.round(cafe.gap * 24) + ' H' : cafe.gap + ' D';
+                
+                const engCls = cafe.eng < 10 ? 'bg-red' : 'bg-green';
+                const engTxt = cafe.eng + '%';
+                
+                const folCls = cafe.fol < 5 ? 'bg-red' : 'bg-green';
+                const folTxt = (cafe.fol > 0 ? '+' : '') + cafe.fol;
 
-  <script src="/static/script.js"></script>
+                // Tooltip SVGs
+                const svgGap = generateSVG(cafe.gapHist, cafe.gapHist, false, false);
+                const svgEng = generateSVG(cafe.engHist, cafe.engHist, true, false);
+                const svgFol = generateSVG(cafe.folHist, cafe.folHist, false, true);
+
+                const row = document.createElement('div');
+                row.className = 'cafe-row';
+                row.innerHTML = `
+                    <input type="checkbox" class="checkbox">
+                    <div class="social-icons">
+                        <a href="https://facebook.com/${cafe.fb}" target="mobile_frame" class="icon-fb">f</a>
+                        <a href="https://instagram.com/${cafe.ig}" target="mobile_frame" class="icon-ig">IG</a>
+                        <a href="https://www.google.com/maps/search/${cafe.name}+${cafe.loc}" target="mobile_frame" class="icon-map">📍</a>
+                        <a href="https://m.me/${cafe.fb}" target="mobile_frame" class="icon-msg">💬</a>
+                    </div>
+                    <div class="cafe-name-loc">
+                        [${cafe.name}] <span>[${cafe.loc}]</span>
+                    </div>
+                    
+                    <div class="metric-box ${gapCls}">
+                        ${gapTxt}
+                        <div class="tooltip">
+                            <div class="tooltip-title">AVERAGE POSTING GAP (LAST 5 POSTS)</div>
+                            ${svgGap}
+                        </div>
+                    </div>
+                    
+                    <div class="metric-box ${engCls}">
+                        ${engTxt}
+                        <div class="tooltip">
+                            <div class="tooltip-title">AVERAGE ENGAGEMENT (LAST 5 POSTS)</div>
+                            ${svgEng}
+                        </div>
+                    </div>
+                    
+                    <div class="metric-box ${folCls}">
+                        ${folTxt}
+                        <div class="tooltip">
+                            <div class="tooltip-title">WEEKLY FOLLOWERS GAIN (LAST 5 WKS)</div>
+                            ${svgFol}
+                        </div>
+                    </div>
+
+                    <div class="action-btns">
+                        <button class="arrow-btn arrow-green" onclick="moveItem(${cafe.id}, 'main', 'pending')">&lt;</button>
+                        <button class="arrow-btn arrow-red" onclick="moveItem(${cafe.id}, 'main', 'rejected')">&gt;</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Render Segregated Lists
+        function renderSegregatedList(listName, elementId, actBtnTxt, actBtnClass, tgtList) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            appState[listName].forEach(cafe => {
+                const row = document.createElement('div');
+                row.className = 'cafe-row';
+                row.innerHTML = `
+                    <div class="cafe-name-loc">
+                        [${cafe.name}] <span>[${cafe.loc}]</span>
+                    </div>
+                    <button class="list-btn ${actBtnClass}" onclick="moveItem(${cafe.id}, '${listName}', '${tgtList}')">${actBtnTxt}</button>
+                    <button class="list-btn btn-red" onclick="deleteItem(${cafe.id}, '${listName}')">DELETE</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Action Handlers
+        function moveItem(id, fromList, toList) {
+            const idx = appState[fromList].findIndex(c => c.id === id);
+            if (idx > -1) {
+                const item = appState[fromList].splice(idx, 1)[0];
+                appState[toList].push(item);
+                renderAll();
+            }
+        }
+
+        function deleteItem(id, listName) {
+            appState[listName] = appState[listName].filter(c => c.id !== id);
+            renderAll();
+        }
+
+        function renderAll() {
+            renderMainList();
+            renderSegregatedList('pending', 'pending-list', 'ADD', 'btn-lime', 'main');
+            renderSegregatedList('rejected', 'rejected-list', 'RECON', 'btn-lime', 'pending');
+        }
+
+        function toggleView() {
+            const mainView = document.getElementById('main-view');
+            const segView = document.getElementById('segregated-view');
+            const btn = document.getElementById('toggle-view-btn');
+
+            if (appState.currentView === 'main') {
+                mainView.style.display = 'none';
+                segView.style.display = 'block';
+                btn.innerText = 'Main List';
+                appState.currentView = 'segregated';
+            } else {
+                mainView.style.display = 'block';
+                segView.style.display = 'none';
+                btn.innerText = 'View Segregated List';
+                appState.currentView = 'main';
+            }
+        }
+
+        function loadData() {
+            // In a real environment, you would use fetch() to hit your Flask endpoint:
+            // fetch('/api/cafes').then(res => res.json()).then(data => { appState.main = data.cafes; renderAll(); });
+            generateDummyData();
+        }
+
+        // Initialize on load
+        window.onload = loadData;
+    </script>
 </body>
 </html>
