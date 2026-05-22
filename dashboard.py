@@ -16,21 +16,21 @@ st.set_page_config(
 )
 
 # =========================================================
-# HIDE STREAMLIT UI
+# HIDE STREAMLIT DEFAULT UI
 # =========================================================
 
 st.markdown("""
 <style>
 
-#MainMenu {
+#MainMenu{
     visibility:hidden;
 }
 
-header {
+header{
     visibility:hidden;
 }
 
-footer {
+footer{
     visibility:hidden;
 }
 
@@ -210,6 +210,78 @@ def seed_starter_cafes():
     conn.close()
 
 # =========================================================
+# ADD CAFE
+# =========================================================
+
+def add_cafe(
+    name,
+    location,
+    facebook_url,
+    instagram_url,
+    messenger_url,
+    map_url
+):
+
+    conn = get_connection()
+
+    c = conn.cursor()
+
+    c.execute("""
+
+    INSERT INTO cafes (
+
+        name,
+        location,
+
+        facebook_url,
+        instagram_url,
+        messenger_url,
+        map_url,
+
+        avg_gap_days,
+        avg_engagement,
+        weekly_followers,
+
+        posting_history,
+        engagement_history,
+        followers_history,
+
+        status,
+        created_at
+
+    )
+
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+    """, (
+
+        name,
+        location,
+
+        facebook_url,
+        instagram_url,
+        messenger_url,
+        map_url,
+
+        4.2,
+        8.5,
+        12,
+
+        json.dumps([2,3,4,5,4]),
+        json.dumps([5,7,8,9,10]),
+        json.dumps([100,120,135,150,165]),
+
+        "main",
+
+        datetime.now().isoformat()
+
+    ))
+
+    conn.commit()
+
+    conn.close()
+
+# =========================================================
 # UPDATE STATUS
 # =========================================================
 
@@ -277,6 +349,57 @@ def get_cafes():
 init_db()
 
 seed_starter_cafes()
+
+# =========================================================
+# STATUS ACTIONS
+# =========================================================
+
+query_params = st.query_params
+
+if "move_to" in query_params:
+
+    cafe_id = int(
+        query_params["move_to"]
+    )
+
+    update_cafe_status(
+        cafe_id,
+        "pending"
+    )
+
+    st.query_params.clear()
+
+    st.rerun()
+
+if "reject" in query_params:
+
+    cafe_id = int(
+        query_params["reject"]
+    )
+
+    update_cafe_status(
+        cafe_id,
+        "rejected"
+    )
+
+    st.query_params.clear()
+
+    st.rerun()
+
+if "restore" in query_params:
+
+    cafe_id = int(
+        query_params["restore"]
+    )
+
+    update_cafe_status(
+        cafe_id,
+        "main"
+    )
+
+    st.query_params.clear()
+
+    st.rerun()
 
 # =========================================================
 # SIDEBAR
@@ -349,60 +472,6 @@ with st.sidebar:
 
     cafes_count = len(get_cafes())
 
-    # =========================================================
-# STATUS ACTIONS
-# =========================================================
-
-query_params = st.query_params
-
-if "move_to" in query_params:
-
-    cafe_id = int(
-        query_params["move_to"]
-    )
-
-    update_cafe_status(
-        cafe_id,
-        "pending"
-    )
-
-    st.query_params.clear()
-    st.cache_data.clear()
-
-    st.rerun()
-
-if "reject" in query_params:
-
-    cafe_id = int(
-        query_params["reject"]
-    )
-
-    update_cafe_status(
-        cafe_id,
-        "rejected"
-    )
-
-    st.query_params.clear()
-st.cache_data.clear()
-
-    st.rerun()
-
-if "restore" in query_params:
-
-    cafe_id = int(
-        query_params["restore"]
-    )
-
-    update_cafe_status(
-        cafe_id,
-        "main"
-    )
-
-    st.query_params.clear()
-st.cache_data.clear()
-
-    st.rerun()
-
     st.metric(
         "Total Cafes",
         cafes_count
@@ -449,7 +518,7 @@ window.CAFE_DATA = {json.dumps(cafes_data)};
 """
 
 # =========================================================
-# FINAL HTML
+# FINAL PAGE
 # =========================================================
 
 final_page = f"""
