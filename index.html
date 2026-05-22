@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CafePulse — Meta Insights Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- ░░ BACKGROUND CANVAS ░░ -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- ░░ SCAN LINE OVERLAY ░░ -->
+  <div class="scanline-overlay"></div>
+
+  <!-- ═══════════════════════════════════════════ HEADER ═══ -->
+  <header class="app-header">
+    <div class="header-inner">
+
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="13" stroke="url(#bgi)" stroke-width="2"/>
+            <path d="M8 18 Q14 8 20 18" stroke="url(#bgi)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="14" cy="20" r="2.5" fill="url(#bgi)"/>
+            <defs>
+              <linearGradient id="bgi" x1="0" y1="0" x2="28" y2="28">
+                <stop offset="0%" stop-color="#ff8c42"/>
+                <stop offset="100%" stop-color="#ff3d6e"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">CAFE<span class="brand-accent">PULSE</span></span>
+          <span class="brand-sub">Meta Insights Intelligence</span>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <div class="status-pill" id="statusPill">
+          <span class="pulse-dot"></span>
+          <span id="statusText">Loading...</span>
+        </div>
+        <div class="demo-badge" id="demoBadge" style="display:none">
+          DEMO MODE
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="last-updated-wrap">
+          <span class="last-updated-label">Last synced</span>
+          <span class="last-updated-val" id="lastUpdated">—</span>
+        </div>
+        <button class="btn-refresh" id="refreshBtn" title="Refresh data now">
+          <svg class="refresh-icon" id="refreshIcon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M13.65 2.35A8 8 0 1 0 15 8h-1.5A6.5 6.5 0 1 1 8 1.5a6.45 6.45 0 0 1 4.6 1.9L10 6h5V1l-1.35 1.35z" fill="currentColor"/>
+          </svg>
+          <span>Refresh</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Next refresh countdown -->
+    <div class="refresh-countdown" id="refreshCountdown">
+      Next auto-refresh: <span id="countdownTimer">—</span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════ HERO ═══ -->
+  <section class="hero-section">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">DAILY OPPORTUNITY BOARD</div>
+      <h1 class="hero-title">Cafe Accounts That Need <span class="hero-highlight">Your Help</span></h1>
+      <p class="hero-sub">Ranked by posting inactivity · Low engagement · Slow follower growth</p>
+
+      <div class="hero-stats" id="heroStats">
+        <div class="hstat">
+          <span class="hstat-val" id="hstatCritical">—</span>
+          <span class="hstat-label">Critical</span>
+        </div>
+        <div class="hstat-divider"></div>
+        <div class="hstat">
+          <span class="hstat-val" id="hstatAvgGap">—</span>
+          <span class="hstat-label">Avg Gap (days)</span>
+        </div>
+        <div class="hstat-divider"></div>
+        <div class="hstat">
+          <span class="hstat-val" id="hstatAvgEng">—</span>
+          <span class="hstat-label">Avg Engagement</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ RANKING LEGEND ═══ -->
+  <div class="rank-legend">
+    <span class="legend-item"><span class="legend-dot critical"></span>Critical (&gt;40 pts)</span>
+    <span class="legend-item"><span class="legend-dot high"></span>High (20–40)</span>
+    <span class="legend-item"><span class="legend-dot medium"></span>Medium (10–20)</span>
+    <span class="legend-item"><span class="legend-dot low"></span>Low (&lt;10)</span>
+    <span class="legend-sep">|</span>
+    <span class="legend-note">Click any card for full breakdown</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ MAIN LIST ═══ -->
+  <main class="list-container" id="cafeList">
+
+    <!-- Skeleton loaders shown before data arrives -->
+    <div class="skeleton-grid" id="skeletonGrid">
+      <div class="skeleton-card" style="--i:0"><div class="skel-rank"></div><div class="skel-body"><div class="skel-line s80"></div><div class="skel-line s50"></div><div class="skel-metrics"><div class="skel-metric"></div><div class="skel-metric"></div><div class="skel-metric"></div></div></div></div>
+      <div class="skeleton-card" style="--i:1"><div class="skel-rank"></div><div class="skel-body"><div class="skel-line s70"></div><div class="skel-line s40"></div><div class="skel-metrics"><div class="skel-metric"></div><div class="skel-metric"></div><div class="skel-metric"></div></div></div></div>
+      <div class="skeleton-card" style="--i:2"><div class="skel-rank"></div><div class="skel-body"><div class="skel-line s90"></div><div class="skel-line s55"></div><div class="skel-metrics"><div class="skel-metric"></div><div class="skel-metric"></div><div class="skel-metric"></div></div></div></div>
+      <div class="skeleton-card" style="--i:3"><div class="skel-rank"></div><div class="skel-body"><div class="skel-line s65"></div><div class="skel-line s45"></div><div class="skel-metrics"><div class="skel-metric"></div><div class="skel-metric"></div><div class="skel-metric"></div></div></div></div>
+      <div class="skeleton-card" style="--i:4"><div class="skel-rank"></div><div class="skel-body"><div class="skel-line s80"></div><div class="skel-line s50"></div><div class="skel-metrics"><div class="skel-metric"></div><div class="skel-metric"></div><div class="skel-metric"></div></div></div></div>
+    </div>
+
+    <!-- Real cards injected here by script.js -->
+    <div class="cards-grid" id="cardsGrid" style="display:none"></div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════ FOOTER ═══ -->
+  <footer class="app-footer">
+    <span>CafePulse &copy; 2025 — Powered by Meta Graph API</span>
+    <span class="footer-sep">·</span>
+    <span>Data refreshes daily at 6:00 AM PH Time</span>
+    <span class="footer-sep">·</span>
+    <span id="footerMode">—</span>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════ MODAL ═══ -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-panel" id="modalPanel">
+
+      <button class="modal-close" id="modalClose" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- Modal content injected by script.js -->
+      <div id="modalBody"></div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ TOAST ═══ -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
