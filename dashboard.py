@@ -1,50 +1,43 @@
 import streamlit as st
 import pandas as pd
-from app import load_or_refresh_cache, MetricsEngine
+import os
+import json
+from datetime import datetime, timezone
+# Import the logic classes from your original app.py
+from app import MetaAPIClient, MetricsEngine, DemoDataEngine, _parse_ts, CACHE_FILE, DEMO_MODE, META_ACCESS_TOKEN
 
-# Page configuration
-st.set_page_config(page_title="Cafe Intelligence Dashboard", layout="wide")
-
+# Page Setup
+st.set_page_config(page_title="Cafe Tracker", layout="wide")
 st.title("☕ Cafe Intelligence Tracker")
-st.markdown("---")
 
-# Load data using your existing function from app.py
-try:
-    data = load_or_refresh_cache()
-    cafes = data.get("cafes", [])
-    last_updated = data.get("last_updated", "N/A")
+# Logic to load data
+def get_data():
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, "r") as f:
+            return json.load(f)
+    return DemoDataEngine.generate()
 
-    st.sidebar.subheader("Dashboard Status")
-    st.sidebar.write(f"Last Refresh: {last_updated}")
-    
-    if data.get("demo_mode"):
-        st.sidebar.warning("Running in DEMO MODE")
-    else:
-        st.sidebar.success("Running in LIVE MODE")
+# UI Layout
+data = get_data()
+cafes = data.get("cafes", [])
 
-    # Display Metrics in columns
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Cafes Tracked", len(cafes))
-    col2.metric("System Status", "Operational")
-    col3.metric("Mode", "Demo" if data.get("demo_mode") else "Live")
+st.sidebar.subheader("Dashboard Status")
+st.sidebar.write(f"Last Refresh: {data.get('last_updated', 'N/A')}")
 
-    # Display data in a nice table
-    st.subheader("Cafe Performance Table")
-    
-    # Convert list of dicts to DataFrame for nice Streamlit display
-    if cafes:
-        df = pd.DataFrame(cafes)
-        
-        # Select and rename columns for a cleaner view
-        display_cols = ["name", "location", "avg_gap_days", "avg_engagement_rate", "priority_score"]
-        st.dataframe(df[display_cols], use_container_width=True)
-    else:
-        st.info("No cafe data found.")
+# Metrics
+col1, col2 = st.columns(2)
+col1.metric("Cafes Tracked", len(cafes))
+col2.metric("Mode", "DEMO" if data.get("demo_mode") else "LIVE")
 
-except Exception as e:
-    st.error(f"Error loading dashboard: {e}")
-    st.write("Ensure your app.py is in the same folder as this dashboard.py file.")
+# Table
+st.subheader("Cafe Performance")
+if cafes:
+    df = pd.DataFrame(cafes)
+    st.dataframe(df[["name", "location", "priority_score", "avg_engagement_rate"]], use_container_width=True)
+else:
+    st.info("No data available.")
 
-# Instructions
-st.markdown("---")
-st.caption("This dashboard reads data from `daily_cache.json` created by `app.py`.")
+# Refresh Button
+if st.button("Refresh Data"):
+    # Trigger your fetch function here
+    st.rerun()
