@@ -58,6 +58,8 @@ DB_NAME = "cafes.db"
 
 def init_db():
 
+    seed_starter_cafes()
+
     conn = sqlite3.connect(DB_NAME)
 
     c = conn.cursor()
