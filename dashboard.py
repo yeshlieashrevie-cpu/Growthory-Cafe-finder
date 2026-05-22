@@ -367,6 +367,7 @@ if "move_to" in query_params:
     )
 
     st.query_params.clear()
+    st.cache_data.clear()
 
     st.rerun()
 
@@ -382,6 +383,7 @@ if "reject" in query_params:
     )
 
     st.query_params.clear()
+st.cache_data.clear()
 
     st.rerun()
 
@@ -397,6 +399,7 @@ if "restore" in query_params:
     )
 
     st.query_params.clear()
+st.cache_data.clear()
 
     st.rerun()
 
