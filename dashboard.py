@@ -1,10 +1,9 @@
 import os
 import json
 import sqlite3
-import requests
 import streamlit as st
 import streamlit.components.v1 as components
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # =========================================================
 # PAGE CONFIG
@@ -14,11 +13,11 @@ st.set_page_config(
     page_title="Growthory CRM",
     page_icon="📈",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # =========================================================
-# HIDE STREAMLIT UI
+# HIDE STREAMLIT DEFAULT UI
 # =========================================================
 
 st.markdown("""
@@ -54,7 +53,7 @@ footer {
 DB_NAME = "cafes.db"
 
 # =========================================================
-# SQLITE INIT
+# INIT DATABASE
 # =========================================================
 
 def init_db():
@@ -97,91 +96,125 @@ def init_db():
 init_db()
 
 # =========================================================
-# DEMO DATA
+# DATABASE HELPERS
 # =========================================================
 
-def seed_demo_data():
+def get_connection():
 
-    conn = sqlite3.connect(DB_NAME)
+    return sqlite3.connect(DB_NAME)
+
+# =========================================================
+# ADD CAFE
+# =========================================================
+
+def add_cafe(
+    name,
+    location,
+    facebook_url,
+    instagram_url,
+    messenger_url,
+    map_url
+):
+
+    conn = get_connection()
+
+    c = conn.cursor()
+
+    c.execute("""
+    INSERT INTO cafes (
+
+        name,
+        location,
+
+        facebook_url,
+        instagram_url,
+        messenger_url,
+        map_url,
+
+        avg_gap_days,
+        avg_engagement,
+        weekly_followers,
+
+        posting_history,
+        engagement_history,
+        followers_history,
+
+        status,
+        created_at
+
+    )
+
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+    """, (
+
+        name,
+        location,
+
+        facebook_url,
+        instagram_url,
+        messenger_url,
+        map_url,
+
+        4.2,
+        8.5,
+        12,
+
+        json.dumps([2,3,4,5,4]),
+        json.dumps([5,7,8,9,10]),
+        json.dumps([100,120,135,150,165]),
+
+        "main",
+
+        datetime.now().isoformat()
+
+    ))
+
+    conn.commit()
+
+    conn.close()
+
+# =========================================================
+# DELETE CAFE
+# =========================================================
+
+def delete_cafe(cafe_id):
+
+    conn = get_connection()
 
     c = conn.cursor()
 
     c.execute(
-        "SELECT COUNT(*) FROM cafes"
+        "DELETE FROM cafes WHERE id=?",
+        (cafe_id,)
     )
 
-    count = c.fetchone()[0]
-
-    if count == 0:
-
-        cafes = [
-
-            (
-                "Brewed Awakening",
-                "Makati",
-                "https://facebook.com",
-                "https://instagram.com",
-                "https://m.me",
-                "https://maps.google.com",
-                3.2,
-                11.4,
-                18,
-                json.dumps([2,3,4,3,4]),
-                json.dumps([8,12,10,15,11]),
-                json.dumps([100,120,130,145,163]),
-                "main",
-                datetime.now().isoformat()
-            ),
-
-            (
-                "Roast Republic",
-                "Taguig",
-                "https://facebook.com",
-                "https://instagram.com",
-                "https://m.me",
-                "https://maps.google.com",
-                7.1,
-                4.3,
-                -3,
-                json.dumps([8,7,6,7,8]),
-                json.dumps([4,3,5,4,5]),
-                json.dumps([200,190,188,185,182]),
-                "main",
-                datetime.now().isoformat()
-            )
-        ]
-
-        c.executemany("""
-        INSERT INTO cafes (
-
-            name,
-            location,
-
-            facebook_url,
-            instagram_url,
-            messenger_url,
-            map_url,
-
-            avg_gap_days,
-            avg_engagement,
-            weekly_followers,
-
-            posting_history,
-            engagement_history,
-            followers_history,
-
-            status,
-            created_at
-
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, cafes)
-
-        conn.commit()
+    conn.commit()
 
     conn.close()
 
-seed_demo_data()
+# =========================================================
+# UPDATE STATUS
+# =========================================================
+
+def update_status(cafe_id, status):
+
+    conn = get_connection()
+
+    c = conn.cursor()
+
+    c.execute(
+        """
+        UPDATE cafes
+        SET status=?
+        WHERE id=?
+        """,
+        (status, cafe_id)
+    )
+
+    conn.commit()
+
+    conn.close()
 
 # =========================================================
 # GET CAFES
@@ -189,7 +222,7 @@ seed_demo_data()
 
 def get_cafes():
 
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_connection()
 
     conn.row_factory = sqlite3.Row
 
@@ -198,31 +231,95 @@ def get_cafes():
     c.execute("""
     SELECT *
     FROM cafes
-    ORDER BY avg_engagement DESC
+    ORDER BY created_at DESC
     """)
 
-    rows = [
+    cafes = [
         dict(x)
         for x in c.fetchall()
     ]
 
     conn.close()
 
-    return rows
+    return cafes
 
 # =========================================================
-# META CONFIG
+# SIDEBAR CRM PANEL
 # =========================================================
 
-try:
+with st.sidebar:
 
-    META_ACCESS_TOKEN = st.secrets[
-        "META_ACCESS_TOKEN"
-    ]
+    st.title("Growthory CRM")
 
-except:
+    st.markdown("---")
 
-    META_ACCESS_TOKEN = ""
+    st.subheader("Add Cafe")
+
+    with st.form("add_cafe_form"):
+
+        name = st.text_input(
+            "Cafe Name"
+        )
+
+        location = st.text_input(
+            "Location"
+        )
+
+        facebook_url = st.text_input(
+            "Facebook URL"
+        )
+
+        instagram_url = st.text_input(
+            "Instagram URL"
+        )
+
+        messenger_url = st.text_input(
+            "Messenger URL"
+        )
+
+        map_url = st.text_input(
+            "Google Maps URL"
+        )
+
+        submitted = st.form_submit_button(
+            "Add Cafe"
+        )
+
+        if submitted:
+
+            if not name:
+
+                st.error(
+                    "Cafe name required."
+                )
+
+            else:
+
+                add_cafe(
+                    name,
+                    location,
+                    facebook_url,
+                    instagram_url,
+                    messenger_url,
+                    map_url
+                )
+
+                st.success(
+                    f"{name} added successfully."
+                )
+
+                st.rerun()
+
+    st.markdown("---")
+
+    st.subheader("Database")
+
+    cafes_count = len(get_cafes())
+
+    st.metric(
+        "Total Cafes",
+        cafes_count
+    )
 
 # =========================================================
 # LOAD FRONTEND FILES
@@ -323,29 +420,7 @@ rel="stylesheet"
 """
 
 # =========================================================
-# SIDEBAR STATUS
-# =========================================================
-
-with st.sidebar:
-
-    st.title("Growthory CRM")
-
-    st.success("Frontend Loaded")
-
-    if META_ACCESS_TOKEN:
-
-        st.success(
-            "Meta Connected"
-        )
-
-    else:
-
-        st.warning(
-            "Meta Token Missing"
-        )
-
-# =========================================================
-# RENDER APP
+# RENDER FRONTEND
 # =========================================================
 
 components.html(
