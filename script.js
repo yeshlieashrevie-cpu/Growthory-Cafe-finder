@@ -136,7 +136,7 @@ function getFilteredCafes(){
     return cafes.filter(cafe => {
 
         const matchesView =
-            cafe.status === currentView
+             (cafe.status || "main") === currentView
 
         const matchesSearch =
             cafe.name
