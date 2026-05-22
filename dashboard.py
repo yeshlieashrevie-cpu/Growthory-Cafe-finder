@@ -159,9 +159,9 @@ if not BACKEND_RUNNING:
 
 BASE_DIR = Path(__file__).parent
 
-HTML_PATH = BASE_DIR / "templates" / "index.html"
-CSS_PATH = BASE_DIR / "static" / "style.css"
-JS_PATH = BASE_DIR / "static" / "script.js"
+HTML_PATH = BASE_DIR / "index.html"
+CSS_PATH = BASE_DIR / "style.css"
+JS_PATH = BASE_DIR / "script.js"
 
 # =========================================================
 # VERIFY FILES EXIST
