@@ -53,12 +53,18 @@ footer {
 DB_NAME = "cafes.db"
 
 # =========================================================
+# DATABASE HELPERS
+# =========================================================
+
+def get_connection():
+
+    return sqlite3.connect(DB_NAME)
+
+# =========================================================
 # INIT DATABASE
 # =========================================================
 
 def init_db():
-
-    seed_starter_cafes()
 
     conn = sqlite3.connect(DB_NAME)
 
@@ -95,161 +101,119 @@ def init_db():
 
     conn.close()
 
-init_db()
-
-# =========================================================
-# DATABASE HELPERS
-# =========================================================
-
-def get_connection():
-
-    return sqlite3.connect(DB_NAME)
-
-# =========================================================
-# ADD CAFE
-# =========================================================
-
-def add_cafe(
-    name,
-    location,
-    facebook_url,
-    instagram_url,
-    messenger_url,
-    map_url
-):
-
-    conn = get_connection()
-
-    c = conn.cursor()
-
-    c.execute("""
-    INSERT INTO cafes (
-
-        name,
-        location,
-
-        facebook_url,
-        instagram_url,
-        messenger_url,
-        map_url,
-
-        avg_gap_days,
-        avg_engagement,
-        weekly_followers,
-
-        posting_history,
-        engagement_history,
-        followers_history,
-
-        status,
-        created_at
-
-    )
-
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-
-    """, (
-
-        name,
-        location,
-
-        facebook_url,
-        instagram_url,
-        messenger_url,
-        map_url,
-
-        4.2,
-        8.5,
-        12,
-
-        json.dumps([2,3,4,5,4]),
-        json.dumps([5,7,8,9,10]),
-        json.dumps([100,120,135,150,165]),
-
-        "main",
-
-        datetime.now().isoformat()
-
-    ))
-
-    conn.commit()
-
-    conn.close()
-
-# =========================================================
-# DELETE CAFE
-# =========================================================
-
-def delete_cafe(cafe_id):
-
-    conn = get_connection()
-
-    c = conn.cursor()
-
-    c.execute(
-        "DELETE FROM cafes WHERE id=?",
-        (cafe_id,)
-    )
-
-    conn.commit()
-
-    conn.close()
-
-# =========================================================
-# UPDATE STATUS
-# =========================================================
-
-def update_status(cafe_id, status):
-
-    conn = get_connection()
-
-    c = conn.cursor()
-
-    c.execute(
-        """
-        UPDATE cafes
-        SET status=?
-        WHERE id=?
-        """,
-        (status, cafe_id)
-    )
-
-    conn.commit()
-
-    conn.close()
-
-# =========================================================
-# GET CAFES
-# =========================================================
-
-def get_cafes():
-
-    conn = get_connection()
-
-    conn.row_factory = sqlite3.Row
-
-    c = conn.cursor()
-
-    c.execute("""
-    SELECT *
-    FROM cafes
-    ORDER BY created_at DESC
-    """)
-
-    cafes = [
-        dict(x)
-        for x in c.fetchall()
-    ]
-
-    conn.close()
-
-    return cafes
-
 # =========================================================
 # SEED STARTER CAFES
 # =========================================================
 
 def seed_starter_cafes():
+
+    conn = get_connection()
+
+    c = conn.cursor()
+
+    c.execute(
+        "SELECT COUNT(*) FROM cafes"
+    )
+
+    count = c.fetchone()[0]
+
+    if count == 0:
+
+        cafes = [
+
+            (
+                "Yardstick Coffee",
+                "Makati",
+                "https://facebook.com",
+                "https://instagram.com/yardstickcoffee",
+                "https://m.me",
+                "https://maps.google.com",
+                3.1,
+                12.4,
+                18,
+                json.dumps([2,3,4,3,4]),
+                json.dumps([8,12,10,15,11]),
+                json.dumps([100,120,130,145,163]),
+                "main",
+                datetime.now().isoformat()
+            ),
+
+            (
+                "The Curator Coffee",
+                "Makati",
+                "https://facebook.com",
+                "https://instagram.com",
+                "https://m.me",
+                "https://maps.google.com",
+                5.2,
+                6.8,
+                4,
+                json.dumps([5,6,5,7,5]),
+                json.dumps([6,7,6,8,7]),
+                json.dumps([200,203,205,207,211]),
+                "main",
+                datetime.now().isoformat()
+            ),
+
+            (
+                "Commune",
+                "Makati",
+                "https://facebook.com",
+                "https://instagram.com",
+                "https://m.me",
+                "https://maps.google.com",
+                7.3,
+                3.2,
+                -2,
+                json.dumps([8,7,9,8,7]),
+                json.dumps([3,4,2,4,3]),
+                json.dumps([500,490,485,480,478]),
+                "main",
+                datetime.now().isoformat()
+            )
+
+        ]
+
+        c.executemany("""
+
+        INSERT INTO cafes (
+
+            name,
+            location,
+
+            facebook_url,
+            instagram_url,
+            messenger_url,
+            map_url,
+
+            avg_gap_days,
+            avg_engagement,
+            weekly_followers,
+
+            posting_history,
+            engagement_history,
+            followers_history,
+
+            status,
+            created_at
+
+        )
+
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+        """, cafes)
+
+        conn.commit()
+
+    conn.close()
+
+# =========================================================
+# INITIALIZE DATABASE
+# =========================================================
+
+init_db()
+
+seed_starter_cafes()
 
     conn = get_connection()
 
