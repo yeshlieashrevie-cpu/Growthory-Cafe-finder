@@ -80,4 +80,139 @@
                 class="sidebar-btn danger"
                 id="delete-selected-btn"
             >
-                <span>🗑️
+                <span>🗑️</span>
+                Delete Selected
+            </button>
+
+        </div>
+
+    </aside>
+
+    <!-- ===================================================== -->
+    <!-- MAIN CONTENT -->
+    <!-- ===================================================== -->
+
+    <main class="main-content">
+
+        <!-- ================================================= -->
+        <!-- TOPBAR -->
+        <!-- ================================================= -->
+
+        <div class="topbar">
+
+            <div class="search-wrapper">
+
+                <input
+                    type="text"
+                    class="search-input"
+                    id="search-input"
+                    placeholder="Search cafes..."
+                >
+
+            </div>
+
+            <div class="top-actions">
+
+                <button
+                    class="action-btn secondary"
+                    id="batch-outreach-btn"
+                >
+                    ✉ Batch Outreach
+                </button>
+
+                <button
+                    class="action-btn primary"
+                    id="refresh-top-btn"
+                >
+                    🔄 Refresh
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- ================================================= -->
+        <!-- CONTENT GRID -->
+        <!-- ================================================= -->
+
+        <div class="content-grid">
+
+            <!-- ============================================= -->
+            <!-- MOBILE PREVIEW -->
+            <!-- ============================================= -->
+
+            <div class="mobile-preview">
+
+                <div class="mobile-header">
+                    Mobile Preview
+                </div>
+
+                <iframe
+                    id="mobile-frame"
+                    class="mobile-frame"
+                    src="https://facebook.com"
+                ></iframe>
+
+            </div>
+
+            <!-- ============================================= -->
+            <!-- LIST SECTION -->
+            <!-- ============================================= -->
+
+            <div class="list-section">
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2 id="view-title">
+                            Main Leads
+                        </h2>
+
+                        <p id="view-description">
+                            Cafes requiring engagement optimization
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- ========================================= -->
+                <!-- CAFE LIST -->
+                <!-- ========================================= -->
+
+                <div
+                    class="cafe-list"
+                    id="cafe-list"
+                >
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- GRAPH POPUP -->
+<!-- ===================================================== -->
+
+<div
+    class="graph-popup"
+    id="graph-popup"
+>
+
+    <h4 id="popup-title">
+        Metric Trend
+    </h4>
+
+    <canvas
+        id="graph-canvas"
+        width="300"
+        height="180"
+    ></canvas>
+
+</div>
