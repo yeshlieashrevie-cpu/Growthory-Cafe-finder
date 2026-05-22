@@ -1,11 +1,10 @@
 import os
-import time
-import socket
-import threading
+import json
+import sqlite3
 import requests
 import streamlit as st
 import streamlit.components.v1 as components
-from pathlib import Path
+from datetime import datetime, timedelta
 
 # =========================================================
 # PAGE CONFIG
@@ -19,227 +18,261 @@ st.set_page_config(
 )
 
 # =========================================================
-# HIDE STREAMLIT DEFAULT UI
+# HIDE STREAMLIT UI
 # =========================================================
 
-HIDE_STREAMLIT_STYLE = """
+st.markdown("""
 <style>
 
 #MainMenu {
-    visibility: hidden;
-}
-
-footer {
-    visibility: hidden;
+    visibility:hidden;
 }
 
 header {
-    visibility: hidden;
+    visibility:hidden;
 }
 
-.block-container {
-    padding-top: 0rem;
-    padding-bottom: 0rem;
-    padding-left: 0rem;
-    padding-right: 0rem;
-    max-width: 100%;
+footer {
+    visibility:hidden;
 }
 
-section[data-testid="stSidebar"] {
-    display: none;
+.block-container{
+    padding-top:0rem;
+    padding-bottom:0rem;
+    padding-left:0rem;
+    padding-right:0rem;
+    max-width:100%;
 }
 
 </style>
-"""
-
-st.markdown(
-    HIDE_STREAMLIT_STYLE,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # =========================================================
-# IMPORT FLASK APP
+# DATABASE
 # =========================================================
 
-from app import app
+DB_NAME = "cafes.db"
 
 # =========================================================
-# FLASK SERVER STATE
+# SQLITE INIT
 # =========================================================
 
-if "flask_started" not in st.session_state:
-    st.session_state.flask_started = False
+def init_db():
+
+    conn = sqlite3.connect(DB_NAME)
+
+    c = conn.cursor()
+
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS cafes (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        name TEXT,
+        location TEXT,
+
+        facebook_url TEXT,
+        instagram_url TEXT,
+        messenger_url TEXT,
+        map_url TEXT,
+
+        avg_gap_days REAL,
+        avg_engagement REAL,
+        weekly_followers INTEGER,
+
+        posting_history TEXT,
+        engagement_history TEXT,
+        followers_history TEXT,
+
+        status TEXT DEFAULT 'main',
+
+        created_at TEXT
+    )
+    """)
+
+    conn.commit()
+
+    conn.close()
+
+init_db()
 
 # =========================================================
-# START FLASK SERVER
+# DEMO DATA
 # =========================================================
 
-def run_flask():
+def seed_demo_data():
 
-    app.run(
-        host="0.0.0.0",
-        port=5000,
-        debug=False,
-        use_reloader=False
+    conn = sqlite3.connect(DB_NAME)
+
+    c = conn.cursor()
+
+    c.execute(
+        "SELECT COUNT(*) FROM cafes"
     )
 
+    count = c.fetchone()[0]
+
+    if count == 0:
+
+        cafes = [
+
+            (
+                "Brewed Awakening",
+                "Makati",
+                "https://facebook.com",
+                "https://instagram.com",
+                "https://m.me",
+                "https://maps.google.com",
+                3.2,
+                11.4,
+                18,
+                json.dumps([2,3,4,3,4]),
+                json.dumps([8,12,10,15,11]),
+                json.dumps([100,120,130,145,163]),
+                "main",
+                datetime.now().isoformat()
+            ),
+
+            (
+                "Roast Republic",
+                "Taguig",
+                "https://facebook.com",
+                "https://instagram.com",
+                "https://m.me",
+                "https://maps.google.com",
+                7.1,
+                4.3,
+                -3,
+                json.dumps([8,7,6,7,8]),
+                json.dumps([4,3,5,4,5]),
+                json.dumps([200,190,188,185,182]),
+                "main",
+                datetime.now().isoformat()
+            )
+        ]
+
+        c.executemany("""
+        INSERT INTO cafes (
+
+            name,
+            location,
+
+            facebook_url,
+            instagram_url,
+            messenger_url,
+            map_url,
+
+            avg_gap_days,
+            avg_engagement,
+            weekly_followers,
+
+            posting_history,
+            engagement_history,
+            followers_history,
+
+            status,
+            created_at
+
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, cafes)
+
+        conn.commit()
+
+    conn.close()
+
+seed_demo_data()
+
 # =========================================================
-# CHECK IF PORT IS ACTIVE
+# GET CAFES
 # =========================================================
 
-def is_port_open(host="127.0.0.1", port=5000):
+def get_cafes():
 
-    with socket.socket(
-        socket.AF_INET,
-        socket.SOCK_STREAM
-    ) as s:
+    conn = sqlite3.connect(DB_NAME)
 
-        s.settimeout(1)
+    conn.row_factory = sqlite3.Row
 
-        return s.connect_ex((host, port)) == 0
+    c = conn.cursor()
 
-# =========================================================
-# START BACKEND
-# =========================================================
+    c.execute("""
+    SELECT *
+    FROM cafes
+    ORDER BY avg_engagement DESC
+    """)
 
-if not is_port_open():
+    rows = [
+        dict(x)
+        for x in c.fetchall()
+    ]
 
-    flask_thread = threading.Thread(
-        target=run_flask,
-        daemon=True
-    )
+    conn.close()
 
-    flask_thread.start()
-
-    time.sleep(3)
-
-    st.session_state.flask_started = True
+    return rows
 
 # =========================================================
-# VERIFY BACKEND
+# META CONFIG
 # =========================================================
-
-BACKEND_RUNNING = False
 
 try:
 
-    response = requests.get(
-        "http://127.0.0.1:5000/api/status",
-        timeout=5
-    )
+    META_ACCESS_TOKEN = st.secrets[
+        "META_ACCESS_TOKEN"
+    ]
 
-    if response.status_code == 200:
-        BACKEND_RUNNING = True
+except:
 
-except Exception:
-    BACKEND_RUNNING = False
-
-# =========================================================
-# ERROR SCREEN
-# =========================================================
-
-if not BACKEND_RUNNING:
-
-    st.error(
-        """
-        Backend failed to start.
-
-        Check:
-        • app.py exists
-        • requirements.txt is correct
-        • no syntax errors in app.py
-        """
-    )
-
-    st.stop()
+    META_ACCESS_TOKEN = ""
 
 # =========================================================
 # LOAD FRONTEND FILES
 # =========================================================
 
-BASE_DIR = Path(__file__).parent
-
-HTML_PATH = BASE_DIR / "index.html"
-CSS_PATH = BASE_DIR / "style.css"
-JS_PATH = BASE_DIR / "script.js"
-
-# =========================================================
-# VERIFY FILES EXIST
-# =========================================================
-
-required_files = [
-    HTML_PATH,
-    CSS_PATH,
-    JS_PATH
-]
-
-missing_files = []
-
-for file in required_files:
-
-    if not file.exists():
-        missing_files.append(str(file))
-
-if missing_files:
-
-    st.error(
-        f"""
-        Missing frontend files:
-
-        {chr(10).join(missing_files)}
-        """
-    )
-
-    st.stop()
-
-# =========================================================
-# LOAD FILE CONTENTS
-# =========================================================
-
 with open(
-    HTML_PATH,
+    "index.html",
     "r",
     encoding="utf-8"
 ) as f:
 
-    html_content = f.read()
+    html = f.read()
 
 with open(
-    CSS_PATH,
+    "style.css",
     "r",
     encoding="utf-8"
 ) as f:
 
-    css_content = f.read()
+    css = f.read()
 
 with open(
-    JS_PATH,
+    "script.js",
     "r",
     encoding="utf-8"
 ) as f:
 
-    js_content = f.read()
+    js = f.read()
 
 # =========================================================
-# INJECT API BASE
+# INJECT DATA
 # =========================================================
 
-API_BASE = "http://127.0.0.1:5000"
+cafes_data = get_cafes()
 
-js_content = f"""
-const API_BASE = "{API_BASE}";
-{js_content}
+injected_data = f"""
+
+window.CAFE_DATA = {json.dumps(cafes_data)};
+
 """
 
 # =========================================================
-# BUILD FULL PAGE
+# FINAL PAGE
 # =========================================================
 
 final_page = f"""
 
 <!DOCTYPE html>
 
-<html lang="en">
+<html>
 
 <head>
 
@@ -253,26 +286,15 @@ final_page = f"""
 <title>Growthory CRM</title>
 
 <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-/>
-
-<link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-/>
-
-<link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet"
+href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet"
 />
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
-{css_content}
+{css}
 
 </style>
 
@@ -280,50 +302,54 @@ final_page = f"""
 
 <body>
 
-{html_content}
+{html}
 
 <script>
 
-{js_content}
+{injected_data}
+
+</script>
+
+<script>
+
+{js}
 
 </script>
 
 </body>
 
 </html>
+
 """
 
 # =========================================================
-# RENDER FULLSCREEN APP
+# SIDEBAR STATUS
+# =========================================================
+
+with st.sidebar:
+
+    st.title("Growthory CRM")
+
+    st.success("Frontend Loaded")
+
+    if META_ACCESS_TOKEN:
+
+        st.success(
+            "Meta Connected"
+        )
+
+    else:
+
+        st.warning(
+            "Meta Token Missing"
+        )
+
+# =========================================================
+# RENDER APP
 # =========================================================
 
 components.html(
     final_page,
     height=5000,
     scrolling=True
-)
-
-# =========================================================
-# FOOTER STATUS
-# =========================================================
-
-st.markdown(
-    """
-    <div style="
-        position: fixed;
-        bottom: 10px;
-        right: 15px;
-        z-index: 9999;
-        background: #111827;
-        color: #9ca3af;
-        padding: 8px 14px;
-        border-radius: 12px;
-        font-size: 12px;
-        border: 1px solid #1f2937;
-        font-family: Inter;
-    ">
-        Growthory CRM Backend Connected
-    </div>
-    """,
-    unsafe_allow_html=True
 )
