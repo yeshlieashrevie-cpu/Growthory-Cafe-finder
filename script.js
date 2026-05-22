@@ -490,16 +490,15 @@ function setupCardEvents(card, cafe){
                 }
             }
 
-            showToast(
-                "Updating lead..."
-            )
+showToast(
+    "Updating lead..."
+)
 
-            setTimeout(() => {
+setTimeout(() => {
 
-                window.top.location.href =
-                    target
+    window.location.href = target
 
-            }, 250)
+}, 250)
         })
     })
 
