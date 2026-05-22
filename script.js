@@ -1,9 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
+
 // =========================================================
 // GLOBAL STATE
 // =========================================================
 
-let cafes = []
+let cafes = window.CAFE_DATA || []
 
 let selectedIds = []
 
@@ -100,21 +101,16 @@ function renderEmpty(message){
 }
 
 // =========================================================
-// FETCH CAFES
+// LOAD DATA
 // =========================================================
 
-async function fetchCafes(){
+function loadCafeData(){
 
     renderLoader()
 
     try{
 
-        const response =
-            await fetch(
-                `${API_BASE}/api/cafes`
-            )
-
-        cafes = await response.json()
+        cafes = window.CAFE_DATA || []
 
         renderCurrentView()
 
@@ -123,7 +119,7 @@ async function fetchCafes(){
         console.error(error)
 
         renderEmpty(
-            "Backend connection failed."
+            "Failed to load cafes."
         )
     }
 }
@@ -366,8 +362,6 @@ function renderCafeCard(cafe){
                 `
                 <button
                     class="segregation-btn pending"
-                    data-id="${cafe.id}"
-                    data-status="pending"
                 >
                     Move to Pending
                 </button>
@@ -376,8 +370,6 @@ function renderCafeCard(cafe){
                 `
                 <button
                     class="segregation-btn pending"
-                    data-id="${cafe.id}"
-                    data-status="main"
                 >
                     Restore
                 </button>
@@ -390,8 +382,6 @@ function renderCafeCard(cafe){
                 `
                 <button
                     class="segregation-btn reject"
-                    data-id="${cafe.id}"
-                    data-status="rejected"
                 >
                     Reject
                 </button>
@@ -400,8 +390,6 @@ function renderCafeCard(cafe){
                 `
                 <button
                     class="segregation-btn reject"
-                    data-id="${cafe.id}"
-                    data-status="pending"
                 >
                     Reconsider
                 </button>
@@ -436,7 +424,10 @@ function setupCardEvents(card, cafe){
 
         if(e.target.checked){
 
-            selectedIds.push(id)
+            if(!selectedIds.includes(id)){
+
+                selectedIds.push(id)
+            }
 
         }else{
 
@@ -463,42 +454,18 @@ function setupCardEvents(card, cafe){
         })
     })
 
-    // SEGREGATION
+    // SEGREGATION BUTTONS
 
     const segregationButtons =
         card.querySelectorAll(".segregation-btn")
 
     segregationButtons.forEach(btn => {
 
-        btn.addEventListener("click", async () => {
-
-            const id =
-                btn.dataset.id
-
-            const status =
-                btn.dataset.status
-
-            await fetch(
-                `${API_BASE}/api/move`,
-                {
-                    method:"POST",
-
-                    headers:{
-                        "Content-Type":"application/json"
-                    },
-
-                    body:JSON.stringify({
-                        id,
-                        status
-                    })
-                }
-            )
+        btn.addEventListener("click", () => {
 
             showToast(
-                "List updated."
+                "Feature coming soon."
             )
-
-            fetchCafes()
         })
     })
 
@@ -594,10 +561,10 @@ function showGraphPopup(
 
                     data:history,
 
-                    borderColor:"#3b82f6",
+                    borderColor:"#8b5cf6",
 
                     backgroundColor:
-                        "rgba(59,130,246,0.15)",
+                        "rgba(139,92,246,0.18)",
 
                     fill:true,
 
@@ -742,7 +709,7 @@ searchInput.addEventListener(
 
 document
 .getElementById("delete-selected-btn")
-.addEventListener("click", async () => {
+.addEventListener("click", () => {
 
     if(selectedIds.length === 0){
 
@@ -753,55 +720,22 @@ document
         return
     }
 
-    const confirmed =
-        confirm(
-            "Delete selected cafes?"
-        )
-
-    if(!confirmed) return
-
-    await fetch(
-        `${API_BASE}/api/delete`,
-        {
-            method:"POST",
-
-            headers:{
-                "Content-Type":"application/json"
-            },
-
-            body:JSON.stringify({
-                ids:selectedIds
-            })
-        }
-    )
-
-    selectedIds = []
-
     showToast(
-        "Cafes deleted."
+        "Delete system coming soon."
     )
-
-    fetchCafes()
 })
 
 // =========================================================
 // REFRESH
 // =========================================================
 
-async function refreshData(){
+function refreshData(){
 
     showToast(
         "Refreshing metrics..."
     )
 
-    await fetch(
-        `${API_BASE}/api/refresh`,
-        {
-            method:"POST"
-        }
-    )
-
-    fetchCafes()
+    loadCafeData()
 }
 
 document
@@ -820,9 +754,8 @@ document
 .getElementById("export-btn")
 .addEventListener("click", () => {
 
-    window.open(
-        `${API_BASE}/api/export`,
-        "_blank"
+    showToast(
+        "CSV export coming soon."
     )
 })
 
@@ -832,7 +765,7 @@ document
 
 document
 .getElementById("batch-outreach-btn")
-.addEventListener("click", async () => {
+.addEventListener("click", () => {
 
     if(selectedIds.length === 0){
 
@@ -865,5 +798,6 @@ document
 // INITIALIZE
 // =========================================================
 
-fetchCafes()
+loadCafeData()
+
 })
