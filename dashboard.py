@@ -355,6 +355,8 @@ with open(
 
 cafes_data = get_cafes()
 
+st.write(cafes_data)
+
 injected_data = f"""
 
 window.CAFE_DATA = {json.dumps(cafes_data)};
