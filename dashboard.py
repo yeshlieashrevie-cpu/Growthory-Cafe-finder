@@ -1,78 +1,329 @@
-import streamlit as st
-import pandas as pd
-import json
 import os
-from datetime import datetime
-from app import load_or_refresh_cache
+import time
+import socket
+import threading
+import requests
+import streamlit as st
+import streamlit.components.v1 as components
+from pathlib import Path
 
-st.set_page_config(page_title="Growthory Cafe Finder", layout="wide", initial_sidebar_state="collapsed")
+# =========================================================
+# PAGE CONFIG
+# =========================================================
 
-# ─── CSS ────────────────────────────────────────────────────────
-st.markdown("""
+st.set_page_config(
+    page_title="Growthory CRM",
+    page_icon="📈",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# =========================================================
+# HIDE STREAMLIT DEFAULT UI
+# =========================================================
+
+HIDE_STREAMLIT_STYLE = """
 <style>
-    .stApp { background-color: #5d35b0; color: white; }
-    .cafe-row { background-color: #2e1a5e; margin-bottom: 10px; padding: 10px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; }
-    .social-icons a { background: #1877f2; color: white; padding: 8px; border-radius: 6px; text-decoration: none; font-weight: bold; margin-right: 5px; font-size: 12px; }
-    .social-icons a.ig { background: #e1306c; }
-    .social-icons a.map { background: white; color: black; }
-    .social-icons a.msg { background: #00b2ff; }
-    .cafe-info { flex: 1; margin-left: 15px; font-weight: bold; }
-    .cafe-loc { border-left: 2px solid #b2ff33; padding-left: 10px; margin-left: 10px; color: #ccc; }
-    .metric-box { width: 60px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-left: 10px; cursor: pointer; color: black; position: relative; }
-    .bg-green { background-color: #b2ff33; }
-    .bg-red { background-color: #ff3333; color: white; }
-    .tooltip-content { visibility: hidden; position: absolute; top: 50px; left: 50%; transform: translateX(-50%); background-color: #000; color: white; padding: 15px; border-radius: 10px; width: 300px; z-index: 100; text-align: center; }
-    .metric-box:hover .tooltip-content { visibility: visible; }
+
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    visibility: hidden;
+}
+
+.block-container {
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+    padding-left: 0rem;
+    padding-right: 0rem;
+    max-width: 100%;
+}
+
+section[data-testid="stSidebar"] {
+    display: none;
+}
+
 </style>
-""", unsafe_allow_html=True)
+"""
 
-# ─── Logic ────────────────────────────────────────────────────────
-def generate_svg_graph(data, labels, color="#b2ff33"):
-    if not data or len(data) < 2: return ""
-    max_v = max(data) if max(data) != 0 else 1
-    points = [f"{10 + i * (260/4)},{50 - (val/max_v * 40)}" for i, val in enumerate(data)]
-    polyline = f'<polyline fill="none" stroke="white" stroke-width="2" points="{" ".join(points)}" />'
-    return f'<svg width="280px" height="75px">{polyline}</svg>'
+st.markdown(
+    HIDE_STREAMLIT_STYLE,
+    unsafe_allow_html=True
+)
 
-if "app_state" not in st.session_state:
-    data = load_or_refresh_cache()
-    st.session_state.app_state = {"main": data.get("cafes", []), "pending": [], "rejected": [], "page": "main"}
+# =========================================================
+# IMPORT FLASK APP
+# =========================================================
 
-state = st.session_state.app_state
+from app import app
 
-def move_cafe(name, from_l, to_l):
-    cafe = next((c for c in state[from_l] if c["name"] == name), None)
-    if cafe:
-        state[from_l].remove(cafe)
-        if to_l: state[to_l].append(cafe)
+# =========================================================
+# FLASK SERVER STATE
+# =========================================================
 
-# ─── Navigation ────────────────────────────────────────────────────────
-col_logo, col_nav = st.columns([2, 8])
-with col_logo: st.markdown("<h2 style='color:#b2ff33;'>GROWTHORY</h2>", unsafe_allow_html=True)
-with col_nav:
-    if st.button("REFRESH LIST", type="primary"):
-        state["main"] = load_or_refresh_cache().get("cafes", [])
-        st.rerun()
+if "flask_started" not in st.session_state:
+    st.session_state.flask_started = False
 
-# ─── Main View ────────────────────────────────────────────────────────
-left, right = st.columns([3, 7])
-with left:
-    st.markdown('<div style="border: 15px solid #222; border-radius: 30px; height: 750px; background: white;"><iframe name="mobile_frame" src="https://m.facebook.com/" width="100%" height="100%" style="border:none;"></iframe></div>', unsafe_allow_html=True)
+# =========================================================
+# START FLASK SERVER
+# =========================================================
 
-with right:
-    for cafe in state["main"]:
-        m = cafe.get("metrics", {"avg_gap_days": 0, "avg_engagement": 0, "avg_weekly_followers": 0, "gap_history": [], "engagement_history": [], "follower_history": []})
-        
-        row_html = f"""
-        <div class="cafe-row">
-            <div class="social-icons">
-                <a href="{cafe.get('fb_url', '#')}" target="mobile_frame">f</a>
-                <a href="{cafe.get('ig_url', '#')}" target="mobile_frame" class="ig">IG</a>
-                <a href="{cafe.get('map_url', '#')}" target="mobile_frame" class="map">📍</a>
-            </div>
-            <div class="cafe-info">{cafe['name']} <span class="cafe-loc">{cafe['location']}</span></div>
-            <div class="metric-box {'bg-red' if m['avg_gap_days'] > 5 else 'bg-green'}">{int(m['avg_gap_days'])}D</div>
-            <div class="metric-box {'bg-red' if m['avg_engagement'] < 10 else 'bg-green'}">{int(m['avg_engagement'])}%</div>
-        </div>
+def run_flask():
+
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=False,
+        use_reloader=False
+    )
+
+# =========================================================
+# CHECK IF PORT IS ACTIVE
+# =========================================================
+
+def is_port_open(host="127.0.0.1", port=5000):
+
+    with socket.socket(
+        socket.AF_INET,
+        socket.SOCK_STREAM
+    ) as s:
+
+        s.settimeout(1)
+
+        return s.connect_ex((host, port)) == 0
+
+# =========================================================
+# START BACKEND
+# =========================================================
+
+if not is_port_open():
+
+    flask_thread = threading.Thread(
+        target=run_flask,
+        daemon=True
+    )
+
+    flask_thread.start()
+
+    time.sleep(3)
+
+    st.session_state.flask_started = True
+
+# =========================================================
+# VERIFY BACKEND
+# =========================================================
+
+BACKEND_RUNNING = False
+
+try:
+
+    response = requests.get(
+        "http://127.0.0.1:5000/api/status",
+        timeout=5
+    )
+
+    if response.status_code == 200:
+        BACKEND_RUNNING = True
+
+except Exception:
+    BACKEND_RUNNING = False
+
+# =========================================================
+# ERROR SCREEN
+# =========================================================
+
+if not BACKEND_RUNNING:
+
+    st.error(
         """
-        st.markdown(row_html, unsafe_allow_html=True)
+        Backend failed to start.
+
+        Check:
+        • app.py exists
+        • requirements.txt is correct
+        • no syntax errors in app.py
+        """
+    )
+
+    st.stop()
+
+# =========================================================
+# LOAD FRONTEND FILES
+# =========================================================
+
+BASE_DIR = Path(__file__).parent
+
+HTML_PATH = BASE_DIR / "templates" / "index.html"
+CSS_PATH = BASE_DIR / "static" / "style.css"
+JS_PATH = BASE_DIR / "static" / "script.js"
+
+# =========================================================
+# VERIFY FILES EXIST
+# =========================================================
+
+required_files = [
+    HTML_PATH,
+    CSS_PATH,
+    JS_PATH
+]
+
+missing_files = []
+
+for file in required_files:
+
+    if not file.exists():
+        missing_files.append(str(file))
+
+if missing_files:
+
+    st.error(
+        f"""
+        Missing frontend files:
+
+        {chr(10).join(missing_files)}
+        """
+    )
+
+    st.stop()
+
+# =========================================================
+# LOAD FILE CONTENTS
+# =========================================================
+
+with open(
+    HTML_PATH,
+    "r",
+    encoding="utf-8"
+) as f:
+
+    html_content = f.read()
+
+with open(
+    CSS_PATH,
+    "r",
+    encoding="utf-8"
+) as f:
+
+    css_content = f.read()
+
+with open(
+    JS_PATH,
+    "r",
+    encoding="utf-8"
+) as f:
+
+    js_content = f.read()
+
+# =========================================================
+# INJECT API BASE
+# =========================================================
+
+API_BASE = "http://127.0.0.1:5000"
+
+js_content = f"""
+const API_BASE = "{API_BASE}";
+{js_content}
+"""
+
+# =========================================================
+# BUILD FULL PAGE
+# =========================================================
+
+final_page = f"""
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+/>
+
+<title>Growthory CRM</title>
+
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+/>
+
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+/>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+/>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+{css_content}
+
+</style>
+
+</head>
+
+<body>
+
+{html_content}
+
+<script>
+
+{js_content}
+
+</script>
+
+</body>
+
+</html>
+"""
+
+# =========================================================
+# RENDER FULLSCREEN APP
+# =========================================================
+
+components.html(
+    final_page,
+    height=5000,
+    scrolling=True
+)
+
+# =========================================================
+# FOOTER STATUS
+# =========================================================
+
+st.markdown(
+    """
+    <div style="
+        position: fixed;
+        bottom: 10px;
+        right: 15px;
+        z-index: 9999;
+        background: #111827;
+        color: #9ca3af;
+        padding: 8px 14px;
+        border-radius: 12px;
+        font-size: 12px;
+        border: 1px solid #1f2937;
+        font-family: Inter;
+    ">
+        Growthory CRM Backend Connected
+    </div>
+    """,
+    unsafe_allow_html=True
+)
