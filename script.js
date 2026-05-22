@@ -456,18 +456,46 @@ function setupCardEvents(card, cafe){
 
     // SEGREGATION BUTTONS
 
-    const segregationButtons =
-        card.querySelectorAll(".segregation-btn")
+const segregationButtons =
+    card.querySelectorAll(".segregation-btn")
 
-    segregationButtons.forEach(btn => {
+segregationButtons.forEach(btn => {
 
-        btn.addEventListener("click", () => {
+    btn.addEventListener("click", () => {
 
-            showToast(
-                "Feature coming soon."
-            )
-        })
+        if(
+            btn.classList.contains("pending")
+        ){
+
+            if(currentView === "pending"){
+
+                window.location.search =
+                    `?restore=${cafe.id}`
+
+            }else{
+
+                window.location.search =
+                    `?move_to=${cafe.id}`
+            }
+        }
+
+        if(
+            btn.classList.contains("reject")
+        ){
+
+            if(currentView === "rejected"){
+
+                window.location.search =
+                    `?restore=${cafe.id}`
+
+            }else{
+
+                window.location.search =
+                    `?reject=${cafe.id}`
+            }
+        }
     })
+})
 
     // GRAPH POPUPS
 
