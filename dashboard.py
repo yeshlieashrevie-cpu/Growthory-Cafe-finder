@@ -1,4 +1,3 @@
-import os
 import json
 import sqlite3
 import streamlit as st
@@ -17,7 +16,7 @@ st.set_page_config(
 )
 
 # =========================================================
-# HIDE STREAMLIT DEFAULT UI
+# HIDE STREAMLIT UI
 # =========================================================
 
 st.markdown("""
@@ -53,7 +52,7 @@ footer {
 DB_NAME = "cafes.db"
 
 # =========================================================
-# DATABASE HELPERS
+# DATABASE CONNECTION
 # =========================================================
 
 def get_connection():
@@ -66,11 +65,12 @@ def get_connection():
 
 def init_db():
 
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_connection()
 
     c = conn.cursor()
 
     c.execute("""
+
     CREATE TABLE IF NOT EXISTS cafes (
 
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -94,7 +94,9 @@ def init_db():
         status TEXT DEFAULT 'main',
 
         created_at TEXT
+
     )
+
     """)
 
     conn.commit()
@@ -106,14 +108,6 @@ def init_db():
 # =========================================================
 
 def seed_starter_cafes():
-
-# =========================================================
-# INITIALIZE DATABASE
-# =========================================================
-
-init_db()
-
-seed_starter_cafes()
 
     conn = get_connection()
 
@@ -216,7 +210,116 @@ seed_starter_cafes()
     conn.close()
 
 # =========================================================
-# SIDEBAR CRM PANEL
+# ADD CAFE
+# =========================================================
+
+def add_cafe(
+    name,
+    location,
+    facebook_url,
+    instagram_url,
+    messenger_url,
+    map_url
+):
+
+    conn = get_connection()
+
+    c = conn.cursor()
+
+    c.execute("""
+
+    INSERT INTO cafes (
+
+        name,
+        location,
+
+        facebook_url,
+        instagram_url,
+        messenger_url,
+        map_url,
+
+        avg_gap_days,
+        avg_engagement,
+        weekly_followers,
+
+        posting_history,
+        engagement_history,
+        followers_history,
+
+        status,
+        created_at
+
+    )
+
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+    """, (
+
+        name,
+        location,
+
+        facebook_url,
+        instagram_url,
+        messenger_url,
+        map_url,
+
+        4.2,
+        8.5,
+        12,
+
+        json.dumps([2,3,4,5,4]),
+        json.dumps([5,7,8,9,10]),
+        json.dumps([100,120,135,150,165]),
+
+        "main",
+
+        datetime.now().isoformat()
+
+    ))
+
+    conn.commit()
+
+    conn.close()
+
+# =========================================================
+# GET CAFES
+# =========================================================
+
+def get_cafes():
+
+    conn = get_connection()
+
+    conn.row_factory = sqlite3.Row
+
+    c = conn.cursor()
+
+    c.execute("""
+
+    SELECT *
+    FROM cafes
+    ORDER BY created_at DESC
+
+    """)
+
+    cafes = [
+        dict(x)
+        for x in c.fetchall()
+    ]
+
+    conn.close()
+
+    return cafes
+
+# =========================================================
+# INITIALIZE DATABASE
+# =========================================================
+
+init_db()
+
+seed_starter_cafes()
+
+# =========================================================
+# SIDEBAR
 # =========================================================
 
 with st.sidebar:
@@ -284,8 +387,6 @@ with st.sidebar:
 
     st.markdown("---")
 
-    st.subheader("Database")
-
     cafes_count = len(get_cafes())
 
     st.metric(
@@ -322,12 +423,10 @@ with open(
     js = f.read()
 
 # =========================================================
-# INJECT DATA
+# LOAD DATA
 # =========================================================
 
 cafes_data = get_cafes()
-
-st.write(cafes_data)
 
 injected_data = f"""
 
@@ -336,7 +435,7 @@ window.CAFE_DATA = {json.dumps(cafes_data)};
 """
 
 # =========================================================
-# FINAL PAGE
+# FINAL HTML
 # =========================================================
 
 final_page = f"""
@@ -350,8 +449,8 @@ final_page = f"""
 <meta charset="UTF-8">
 
 <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
+name="viewport"
+content="width=device-width, initial-scale=1.0"
 />
 
 <title>Growthory CRM</title>
