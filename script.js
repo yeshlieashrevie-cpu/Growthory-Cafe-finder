@@ -49,8 +49,6 @@ function showToast(message){
 
     document.body.appendChild(toast)
 
-    toast.style.display = "block"
-
     setTimeout(() => {
 
         toast.style.opacity = "0"
@@ -61,7 +59,7 @@ function showToast(message){
 
         }, 300)
 
-    }, 2500)
+    }, 2000)
 }
 
 // =========================================================
@@ -125,7 +123,7 @@ function loadCafeData(){
 }
 
 // =========================================================
-// FILTER VIEW
+// FILTER CAFES
 // =========================================================
 
 function getFilteredCafes(){
@@ -136,7 +134,7 @@ function getFilteredCafes(){
     return cafes.filter(cafe => {
 
         const matchesView =
-             (cafe.status || "main") === currentView
+            (cafe.status || "main") === currentView
 
         const matchesSearch =
             cafe.name
@@ -151,7 +149,7 @@ function getFilteredCafes(){
 }
 
 // =========================================================
-// RENDER CURRENT VIEW
+// RENDER VIEW
 // =========================================================
 
 function renderCurrentView(){
@@ -178,7 +176,7 @@ function renderCurrentView(){
 }
 
 // =========================================================
-// METRIC CLASS
+// METRIC COLORS
 // =========================================================
 
 function metricClass(type, value){
@@ -248,7 +246,6 @@ function renderCafeCard(cafe){
             <input
                 type="checkbox"
                 class="checkbox"
-                data-id="${cafe.id}"
             >
 
             <div class="cafe-info">
@@ -413,27 +410,25 @@ function renderCafeCard(cafe){
 
 function setupCardEvents(card, cafe){
 
-    // CHECKBOX
+    // CHECKBOXES
 
     const checkbox =
         card.querySelector(".checkbox")
 
     checkbox.addEventListener("change", e => {
 
-        const id = cafe.id
-
         if(e.target.checked){
 
-            if(!selectedIds.includes(id)){
+            if(!selectedIds.includes(cafe.id)){
 
-                selectedIds.push(id)
+                selectedIds.push(cafe.id)
             }
 
         }else{
 
             selectedIds =
                 selectedIds.filter(
-                    x => x !== id
+                    x => x !== cafe.id
                 )
         }
     })
@@ -447,57 +442,68 @@ function setupCardEvents(card, cafe){
 
         btn.addEventListener("click", () => {
 
-            const url =
+            mobileFrame.src =
                 btn.dataset.url
-
-            mobileFrame.src = url
         })
     })
 
-    // SEGREGATION BUTTONS
+    // STATUS BUTTONS
 
-const segregationButtons =
-    card.querySelectorAll(".segregation-btn")
+    const segregationButtons =
+        card.querySelectorAll(".segregation-btn")
 
-segregationButtons.forEach(btn => {
+    segregationButtons.forEach(btn => {
 
-    btn.addEventListener("click", () => {
+        btn.addEventListener("click", () => {
 
-        if(
-            btn.classList.contains("pending")
-        ){
+            let target = ""
 
-            if(currentView === "pending"){
+            if(
+                btn.classList.contains("pending")
+            ){
 
-                window.location.search =
-                    `?restore=${cafe.id}`
+                if(currentView === "pending"){
 
-            }else{
+                    target =
+                        `?restore=${cafe.id}`
 
-                window.location.search =
-                    `?move_to=${cafe.id}`
+                }else{
+
+                    target =
+                        `?move_to=${cafe.id}`
+                }
             }
-        }
 
-        if(
-            btn.classList.contains("reject")
-        ){
+            if(
+                btn.classList.contains("reject")
+            ){
 
-            if(currentView === "rejected"){
+                if(currentView === "rejected"){
 
-                window.location.search =
-                    `?restore=${cafe.id}`
+                    target =
+                        `?restore=${cafe.id}`
 
-            }else{
+                }else{
 
-                window.location.search =
-                    `?reject=${cafe.id}`
+                    target =
+                        `?reject=${cafe.id}`
+                }
             }
-        }
+
+            showToast(
+                "Updating lead..."
+            )
+
+            setTimeout(() => {
+
+                window.top.location.href =
+                    target
+
+            }, 250)
+        })
     })
-})
 
-    // GRAPH POPUPS
+    // HOVER CHARTS
 
     const metrics =
         card.querySelectorAll(".metric-hover")
@@ -535,7 +541,7 @@ segregationButtons.forEach(btn => {
 }
 
 // =========================================================
-// GRAPH POPUP
+// CHART POPUP
 // =========================================================
 
 function showGraphPopup(
@@ -578,11 +584,7 @@ function showGraphPopup(
             data:{
 
                 labels:[
-                    "1",
-                    "2",
-                    "3",
-                    "4",
-                    "5"
+                    "1","2","3","4","5"
                 ],
 
                 datasets:[{
@@ -732,21 +734,12 @@ searchInput.addEventListener(
 )
 
 // =========================================================
-// DELETE SELECTED
+// DELETE
 // =========================================================
 
 document
 .getElementById("delete-selected-btn")
 .addEventListener("click", () => {
-
-    if(selectedIds.length === 0){
-
-        showToast(
-            "No cafes selected."
-        )
-
-        return
-    }
 
     showToast(
         "Delete system coming soon."
@@ -775,7 +768,7 @@ document
 .addEventListener("click", refreshData)
 
 // =========================================================
-// EXPORT CSV
+// EXPORT
 // =========================================================
 
 document
