@@ -437,9 +437,81 @@ if(editBtn){
         "click",
         ()=>{
 
-            showToast(
-                "Edit system coming..."
-            )
+const modal =
+document.getElementById(
+    "edit-modal"
+)
+
+modal.style.display =
+"flex"
+
+document
+.getElementById(
+"edit-name"
+)
+.value =
+cafe.name || ""
+
+document
+.getElementById(
+"edit-location"
+)
+.value =
+cafe.location || ""
+
+document
+.getElementById(
+"edit-facebook"
+)
+.value =
+cafe.facebook_url || ""
+
+document
+.getElementById(
+"edit-instagram"
+)
+.value =
+cafe.instagram_url || ""
+
+document
+.getElementById(
+"edit-messenger"
+)
+.value =
+cafe.messenger_url || ""
+
+document
+.getElementById(
+"edit-map"
+)
+.value =
+cafe.map_url || ""
+
+document
+.getElementById(
+"close-edit-btn"
+)
+.onclick=()=>{
+
+modal.style.display=
+"none"
+
+}
+
+document
+.getElementById(
+"save-edit-btn"
+)
+.onclick=()=>{
+
+showToast(
+"Backend save next step..."
+)
+
+modal.style.display=
+"none"
+
+}
 
         }
     )
