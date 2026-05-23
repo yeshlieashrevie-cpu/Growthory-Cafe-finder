@@ -359,6 +359,12 @@ function renderCafeCard(cafe){
 
         <div class="segregation-actions">
 
+<button
+    class="segregation-btn edit-btn"
+>
+    ✏ Edit
+</button>
+
             ${
                 currentView !== "pending"
                 ?
