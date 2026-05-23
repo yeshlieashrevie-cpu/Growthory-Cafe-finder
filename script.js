@@ -422,6 +422,30 @@ function renderCafeCard(cafe){
 
 function setupCardEvents(card, cafe){
 
+// =================================================
+// EDIT BUTTON
+// =================================================
+
+const editBtn =
+    card.querySelector(
+        ".edit-btn"
+    )
+
+if(editBtn){
+
+    editBtn.addEventListener(
+        "click",
+        ()=>{
+
+            showToast(
+                "Edit system coming..."
+            )
+
+        }
+    )
+
+}
+
     // CHECKBOXES
 
 const checkbox =
