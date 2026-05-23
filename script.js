@@ -789,11 +789,11 @@ document
         "Deleting..."
     )
 
-    const firstId =
-        selectedIds[0]
+    const ids =
+        selectedIds.join(",")
 
     window.location.href =
-        `?delete=${firstId}`
+        `?delete=${ids}`
 
 })
 
