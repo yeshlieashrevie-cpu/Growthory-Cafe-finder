@@ -437,108 +437,94 @@ if(editBtn){
         "click",
         ()=>{
 
-const modal =
-document.getElementById(
-    "edit-modal"
-)
+            const modal =
+            document.getElementById(
+                "edit-modal"
+            )
 
-modal.style.display =
-"flex"
+            modal.style.display =
+            "flex"
 
-document
-.getElementById(
-"edit-name"
-)
-.value =
-cafe.name || ""
+            document.getElementById(
+                "edit-name"
+            ).value =
+            cafe.name || ""
 
-document
-.getElementById(
-"edit-location"
-)
-.value =
-cafe.location || ""
+            document.getElementById(
+                "edit-location"
+            ).value =
+            cafe.location || ""
 
-document
-.getElementById(
-"edit-facebook"
-)
-.value =
-cafe.facebook_url || ""
+            document.getElementById(
+                "edit-facebook"
+            ).value =
+            cafe.facebook_url || ""
 
-document
-.getElementById(
-"edit-instagram"
-)
-.value =
-cafe.instagram_url || ""
+            document.getElementById(
+                "edit-instagram"
+            ).value =
+            cafe.instagram_url || ""
 
-document
-.getElementById(
-"edit-messenger"
-)
-.value =
-cafe.messenger_url || ""
+            document.getElementById(
+                "edit-messenger"
+            ).value =
+            cafe.messenger_url || ""
 
-document
-.getElementById(
-"edit-map"
-)
-.value =
-cafe.map_url || ""
+            document.getElementById(
+                "edit-map"
+            ).value =
+            cafe.map_url || ""
 
-document
-.getElementById(
-"close-edit-btn"
-)
-.onclick=()=>{
+            document.getElementById(
+                "close-edit-btn"
+            ).onclick=()=>{
 
-modal.style.display=
-"none"
+                modal.style.display =
+                "none"
 
-}
+            }
 
-document
-.getElementById(
-"save-edit-btn"
-)
-.onclick=()=>{
+            document.getElementById(
+                "save-edit-btn"
+            ).onclick=()=>{
 
-const values=[
+                const values=[
 
-    cafe.id,
+                    cafe.id,
 
-    document.getElementById(
-        "edit-name"
-    ).value,
+                    document.getElementById(
+                        "edit-name"
+                    ).value,
 
-    document.getElementById(
-        "edit-location"
-    ).value,
+                    document.getElementById(
+                        "edit-location"
+                    ).value,
 
-    document.getElementById(
-        "edit-facebook"
-    ).value,
+                    document.getElementById(
+                        "edit-facebook"
+                    ).value,
 
-    document.getElementById(
-        "edit-instagram"
-    ).value,
+                    document.getElementById(
+                        "edit-instagram"
+                    ).value,
 
-    document.getElementById(
-        "edit-messenger"
-    ).value,
+                    document.getElementById(
+                        "edit-messenger"
+                    ).value,
 
-    document.getElementById(
-        "edit-map"
-    ).value
+                    document.getElementById(
+                        "edit-map"
+                    ).value
 
-]
+                ]
 
-const params =
-values.join("|")
+                const params =
+                values.join("|")
 
-window.location.href=
-`?edit=${params}`
+                window.location.href =
+                `?edit=${params}`
+
+            }
 
         }
     )
