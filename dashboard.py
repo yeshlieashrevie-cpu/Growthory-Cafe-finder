@@ -558,6 +558,74 @@ high_opportunity = len([
 
 ])
 
+analytics_html = f"""
+
+<div class="analytics-grid">
+
+<div class="analytics-card">
+
+<div class="analytics-label">
+Total Leads
+</div>
+
+<div class="analytics-value">
+{total_leads}
+</div>
+
+</div>
+
+<div class="analytics-card">
+
+<div class="analytics-label">
+Pending
+</div>
+
+<div class="analytics-value">
+{pending_leads}
+</div>
+
+</div>
+
+<div class="analytics-card">
+
+<div class="analytics-label">
+Rejected
+</div>
+
+<div class="analytics-value">
+{rejected_leads}
+</div>
+
+</div>
+
+<div class="analytics-card">
+
+<div class="analytics-label">
+Avg Engagement
+</div>
+
+<div class="analytics-value">
+{avg_engagement}%
+</div>
+
+</div>
+
+<div class="analytics-card">
+
+<div class="analytics-label">
+High Opportunity
+</div>
+
+<div class="analytics-value">
+{high_opportunity}
+</div>
+
+</div>
+
+</div>
+
+"""
+
 injected_data = f"""
 
 window.CAFE_DATA = {json.dumps(cafes_data)};
