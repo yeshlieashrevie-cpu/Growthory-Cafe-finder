@@ -736,13 +736,54 @@ searchInput.addEventListener(
 // DELETE
 // =========================================================
 
+// ======================================================
+// DELETE SELECTED
+// ======================================================
+
 document
 .getElementById("delete-selected-btn")
 .addEventListener("click", () => {
 
-    showToast(
-        "Delete system coming soon."
+    if (!selectedIds || selectedIds.length === 0){
+
+        showToast(
+            "No cafes selected."
+        )
+
+        return
+    }
+
+    const confirmed = confirm(
+        `Delete ${selectedIds.length} cafe(s)?`
     )
+
+    if(!confirmed){
+        return
+    }
+
+    showToast(
+        "Deleting..."
+    )
+
+    const deleteNext = (index)=>{
+
+        if(index >= selectedIds.length){
+
+            window.location.reload()
+
+            return
+        }
+
+        const cafeId =
+            selectedIds[index]
+
+        window.location.href =
+            `?delete=${cafeId}`
+
+    }
+
+    deleteNext(0)
+
 })
 
 // =========================================================
