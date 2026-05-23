@@ -243,10 +243,16 @@ function renderCafeCard(cafe){
 
         <div class="checkbox-wrapper">
 
-            <input
-                type="checkbox"
-                class="checkbox"
-            >
+<input
+    type="checkbox"
+    class="checkbox"
+    data-id="${cafe.id}"
+    ${
+        selectedIds.includes(cafe.id)
+        ? "checked"
+        : ""
+    }
+>
 
             <div class="cafe-info">
 
@@ -412,26 +418,43 @@ function setupCardEvents(card, cafe){
 
     // CHECKBOXES
 
-    const checkbox =
-        card.querySelector(".checkbox")
+const checkbox =
+    card.querySelector(".checkbox")
 
-    checkbox.addEventListener("change", e => {
+checkbox.addEventListener(
+    "change",
+    (e)=>{
+
+        const id =
+            Number(
+                e.target.dataset.id
+            )
 
         if(e.target.checked){
 
-            if(!selectedIds.includes(cafe.id)){
+            if(
+                !selectedIds.includes(id)
+            ){
 
-                selectedIds.push(cafe.id)
+                selectedIds.push(id)
+
             }
 
         }else{
 
             selectedIds =
                 selectedIds.filter(
-                    x => x !== cafe.id
+                    x => x !== id
                 )
+
         }
-    })
+
+        console.log(
+            "Selected:",
+            selectedIds
+        )
+
+})
 
     // SOCIAL BUTTONS
 
