@@ -670,6 +670,8 @@ rel="stylesheet"
 
 <body>
 
+{analytics_html}
+
 {html}
 
 <script>
