@@ -512,7 +512,7 @@ with st.sidebar:
 
     st.markdown("---")
 
-cafes_count = len(cafes_data)
+    cafes_count = len(get_cafes())
 
     st.metric(
         "Total Cafes",
