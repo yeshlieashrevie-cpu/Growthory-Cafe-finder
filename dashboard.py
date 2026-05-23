@@ -511,6 +511,53 @@ with open(
 
 cafes_data = get_cafes()
 
+# =========================================================
+# DASHBOARD ANALYTICS
+# =========================================================
+
+total_leads = len(cafes_data)
+
+pending_leads = len([
+    x for x in cafes_data
+    if x["status"] == "pending"
+])
+
+rejected_leads = len([
+    x for x in cafes_data
+    if x["status"] == "rejected"
+])
+
+main_leads = len([
+    x for x in cafes_data
+    if x["status"] == "main"
+])
+
+avg_engagement = 0
+
+if total_leads > 0:
+
+    avg_engagement = round(
+
+        sum(
+            x["avg_engagement"]
+            for x in cafes_data
+        ) / total_leads,
+
+        1
+    )
+
+high_opportunity = len([
+
+    x for x in cafes_data
+
+    if (
+        x["avg_gap_days"] >= 5
+        and
+        x["avg_engagement"] <= 7
+    )
+
+])
+
 injected_data = f"""
 
 window.CAFE_DATA = {json.dumps(cafes_data)};
