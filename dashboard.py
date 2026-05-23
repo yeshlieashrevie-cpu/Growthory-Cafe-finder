@@ -290,28 +290,6 @@ def update_cafe_status(
     status
 ):
 
-# =========================================================
-# DELETE CAFE
-# =========================================================
-
-def delete_cafe(cafe_id):
-
-    conn = get_connection()
-
-    c = conn.cursor()
-
-    c.execute("""
-
-    DELETE FROM cafes
-
-    WHERE id=?
-
-    """, (cafe_id,))
-
-    conn.commit()
-
-    conn.close()
-
     conn = get_connection()
 
     c = conn.cursor()
@@ -334,6 +312,34 @@ def delete_cafe(cafe_id):
     conn.commit()
 
     conn.close()
+
+
+# =========================================================
+# DELETE CAFE
+# =========================================================
+
+def delete_cafe(cafe_id):
+
+    conn = get_connection()
+
+    c = conn.cursor()
+
+    c.execute("""
+
+    DELETE FROM cafes
+
+    WHERE id=?
+
+    """, (
+
+        cafe_id,
+
+    ))
+
+    conn.commit()
+
+    conn.close()
+
 
 # =========================================================
 # GET CAFES
@@ -506,7 +512,7 @@ with st.sidebar:
 
     st.markdown("---")
 
-    cafes_count = len(get_cafes())
+cafes_count = len(cafes_data)
 
     st.metric(
         "Total Cafes",
@@ -734,6 +740,6 @@ rel="stylesheet"
 
 components.html(
     final_page,
-    height=6500,
+    height=7000,
     scrolling=True
 )
