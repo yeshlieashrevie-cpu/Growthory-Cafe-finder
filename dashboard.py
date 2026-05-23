@@ -464,9 +464,6 @@ if "reject" in query_params:
 
     st.rerun()
 
-    query_params = st.query_params
-
-
 if "delete" in query_params:
 
     ids = str(
