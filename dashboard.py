@@ -416,13 +416,23 @@ if "reject" in query_params:
 
 if "delete" in query_params:
 
-    cafe_id = int(
+    ids = str(
         query_params["delete"]
     )
 
-    delete_cafe(
-        cafe_id
-    )
+    cafe_ids = [
+
+        int(x)
+
+        for x in ids.split(",")
+
+    ]
+
+    for cafe_id in cafe_ids:
+
+        delete_cafe(
+            cafe_id
+        )
 
     st.query_params.clear()
 
