@@ -767,7 +767,7 @@ document
 .getElementById("delete-selected-btn")
 .addEventListener("click", () => {
 
-    if (!selectedIds || selectedIds.length === 0){
+    if(selectedIds.length === 0){
 
         showToast(
             "No cafes selected."
@@ -776,9 +776,10 @@ document
         return
     }
 
-    const confirmed = confirm(
-        `Delete ${selectedIds.length} cafe(s)?`
-    )
+    const confirmed =
+        confirm(
+            `Delete ${selectedIds.length} cafe(s)?`
+        )
 
     if(!confirmed){
         return
@@ -788,24 +789,11 @@ document
         "Deleting..."
     )
 
-    const deleteNext = (index)=>{
+    const firstId =
+        selectedIds[0]
 
-        if(index >= selectedIds.length){
-
-            window.location.reload()
-
-            return
-        }
-
-        const cafeId =
-            selectedIds[index]
-
-        window.location.href =
-            `?delete=${cafeId}`
-
-    }
-
-    deleteNext(0)
+    window.location.href =
+        `?delete=${firstId}`
 
 })
 
