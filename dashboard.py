@@ -466,7 +466,7 @@ if "reject" in query_params:
 
 if "delete" in query_params:
 
-    if "edit" in query_params:
+if "edit" in query_params:
 
     values = str(
         query_params["edit"]
