@@ -573,17 +573,42 @@ checkbox.addEventListener(
 
     // SOCIAL BUTTONS
 
-    const socialButtons =
-        card.querySelectorAll(".social-btn")
+const socialButtons =
+    card.querySelectorAll(".social-btn")
 
-    socialButtons.forEach(btn => {
+socialButtons.forEach(btn=>{
 
-        btn.addEventListener("click", () => {
+    btn.addEventListener(
+        "click",
+        ()=>{
 
-            mobileFrame.src =
+            const url =
                 btn.dataset.url
-        })
-    })
+
+            if(
+                !url ||
+                url==="https://facebook.com" ||
+                url==="https://instagram.com" ||
+                url==="https://maps.google.com" ||
+                url==="https://m.me"
+            ){
+
+                showToast(
+                    "No profile available."
+                )
+
+                return
+            }
+
+            window.open(
+                url,
+                "_blank"
+            )
+
+        }
+    )
+
+})
 
     // STATUS BUTTONS
 
