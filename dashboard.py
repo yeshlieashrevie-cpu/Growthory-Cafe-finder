@@ -290,6 +290,28 @@ def update_cafe_status(
     status
 ):
 
+# =========================================================
+# DELETE CAFE
+# =========================================================
+
+def delete_cafe(cafe_id):
+
+    conn = get_connection()
+
+    c = conn.cursor()
+
+    c.execute("""
+
+    DELETE FROM cafes
+
+    WHERE id=?
+
+    """, (cafe_id,))
+
+    conn.commit()
+
+    conn.close()
+
     conn = get_connection()
 
     c = conn.cursor()
@@ -380,6 +402,20 @@ if "reject" in query_params:
     update_cafe_status(
         cafe_id,
         "rejected"
+    )
+
+    st.query_params.clear()
+
+    st.rerun()
+
+if "delete" in query_params:
+
+    cafe_id = int(
+        query_params["delete"]
+    )
+
+    delete_cafe(
+        cafe_id
     )
 
     st.query_params.clear()
@@ -698,6 +734,6 @@ rel="stylesheet"
 
 components.html(
     final_page,
-    height=5000,
+    height=6500,
     scrolling=True
 )
