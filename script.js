@@ -821,14 +821,122 @@ document
 // =========================================================
 // EXPORT
 // =========================================================
+// =========================================================
+// EXPORT CSV
+// =========================================================
 
 document
 .getElementById("export-btn")
 .addEventListener("click", () => {
 
+    if(cafes.length === 0){
+
+        showToast(
+            "No cafes to export."
+        )
+
+        return
+    }
+
     showToast(
-        "CSV export coming soon."
+        "Generating CSV..."
     )
+
+    const rows = [
+
+        [
+            "Name",
+            "Location",
+            "Status",
+            "Facebook URL",
+            "Instagram URL",
+            "Messenger URL",
+            "Google Maps URL",
+            "Avg Gap Days",
+            "Avg Engagement",
+            "Weekly Followers",
+            "Created At"
+        ]
+    ]
+
+    cafes.forEach(cafe => {
+
+        rows.push([
+
+            cafe.name || "",
+
+            cafe.location || "",
+
+            cafe.status || "",
+
+            cafe.facebook_url || "",
+
+            cafe.instagram_url || "",
+
+            cafe.messenger_url || "",
+
+            cafe.map_url || "",
+
+            cafe.avg_gap_days || "",
+
+            cafe.avg_engagement || "",
+
+            cafe.weekly_followers || "",
+
+            cafe.created_at || ""
+
+        ])
+
+    })
+
+    const csvContent = rows
+        .map(row =>
+
+            row.map(cell =>
+
+                `"${String(cell)
+                    .replace(/"/g,'""')}"`
+            )
+            .join(",")
+
+        )
+        .join("\n")
+
+    const blob = new Blob(
+
+        [csvContent],
+
+        {
+            type:"text/csv"
+        }
+
+    )
+
+    const url =
+        URL.createObjectURL(blob)
+
+    const link =
+        document.createElement("a")
+
+    link.href = url
+
+    link.download =
+        "growthory_leads.csv"
+
+    document.body.appendChild(
+        link
+    )
+
+    link.click()
+
+    document.body.removeChild(
+        link
+    )
+
+    URL.revokeObjectURL(
+        url
+    )
+
 })
 
 // =========================================================
