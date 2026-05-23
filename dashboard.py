@@ -531,24 +531,6 @@ if "restore" in query_params:
 
     st.rerun()
 
-    ids = str(
-        query_params["delete"]
-    )
-
-    cafe_ids = [
-
-        int(x)
-
-        for x in ids.split(",")
-
-    ]
-
-    for cafe_id in cafe_ids:
-
-        delete_cafe(
-            cafe_id
-        )
-
     values = str(
         query_params["edit"]
     ).split("|")
