@@ -460,6 +460,10 @@ if "reject" in query_params:
         "rejected"
     )
 
+    st.query_params.clear()
+
+    st.rerun()
+
     query_params = st.query_params
 
 
@@ -545,8 +549,6 @@ if "restore" in query_params:
             cafe_id
         )
 
-if "edit" in query_params:
-
     values = str(
         query_params["edit"]
     ).split("|")
@@ -568,8 +570,6 @@ if "edit" in query_params:
 
     st.rerun()
 
-if "restore" in query_params:
-
     cafe_id = int(
         query_params["restore"]
     )
@@ -584,20 +584,6 @@ if "restore" in query_params:
     st.rerun()
 
 cafes_data = get_cafes()
-
-# =========================================================
-# EDIT CAFE
-# =========================================================
-
-def edit_cafe(
-    cafe_id,
-    name,
-    location,
-    facebook_url,
-    instagram_url,
-    messenger_url,
-    map_url
-):
 
     conn = get_connection()
 
@@ -636,20 +622,6 @@ def edit_cafe(
     conn.commit()
 
     conn.close()
-
-# =========================================================
-# EDIT CAFE
-# =========================================================
-
-def edit_cafe(
-    cafe_id,
-    name,
-    location,
-    facebook_url,
-    instagram_url,
-    messenger_url,
-    map_url
-):
 
     conn = get_connection()
 
