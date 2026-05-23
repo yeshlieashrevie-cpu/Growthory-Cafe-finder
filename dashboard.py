@@ -123,8 +123,6 @@ def seed_starter_cafes():
 
         cafes = [
 
-cafes = [
-
 ("Yardstick Coffee","Makati","https://facebook.com","https://instagram.com/yardstickcoffee","https://m.me","https://maps.google.com",3.1,12.4,18,json.dumps([2,3,4,3,4]),json.dumps([8,12,10,15,11]),json.dumps([100,120,130,145,163]),"main",datetime.now().isoformat()),
 
 ("The Curator Coffee","Makati","https://facebook.com","https://instagram.com","https://m.me","https://maps.google.com",5.2,6.8,4,json.dumps([5,6,5,7,5]),json.dumps([6,7,6,8,7]),json.dumps([200,203,205,207,211]),"main",datetime.now().isoformat()),
