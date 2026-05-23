@@ -443,6 +443,8 @@ if "restore" in query_params:
 
     st.rerun()
 
+cafes_data = get_cafes()
+
 # =========================================================
 # SIDEBAR
 # =========================================================
@@ -512,7 +514,7 @@ with st.sidebar:
 
     st.markdown("---")
 
-    cafes_count = len(get_cafes())
+    cafes_count = len(cafes_data)
 
     st.metric(
         "Total Cafes",
@@ -551,7 +553,7 @@ with open(
 # LOAD DATA
 # =========================================================
 
-cafes_data = get_cafes()
+
 
 # =========================================================
 # DASHBOARD ANALYTICS
