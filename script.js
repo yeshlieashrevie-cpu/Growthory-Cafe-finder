@@ -504,14 +504,41 @@ document
 )
 .onclick=()=>{
 
-showToast(
-"Backend save next step..."
-)
+const values=[
 
-modal.style.display=
-"none"
+    cafe.id,
 
-}
+    document.getElementById(
+        "edit-name"
+    ).value,
+
+    document.getElementById(
+        "edit-location"
+    ).value,
+
+    document.getElementById(
+        "edit-facebook"
+    ).value,
+
+    document.getElementById(
+        "edit-instagram"
+    ).value,
+
+    document.getElementById(
+        "edit-messenger"
+    ).value,
+
+    document.getElementById(
+        "edit-map"
+    ).value
+
+]
+
+const params =
+values.join("|")
+
+window.location.href=
+`?edit=${params}`
 
         }
     )
