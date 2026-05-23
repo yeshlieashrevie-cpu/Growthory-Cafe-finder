@@ -434,6 +434,25 @@ if "delete" in query_params:
             cafe_id
         )
 
+if "edit" in query_params:
+
+    values = str(
+        query_params["edit"]
+    ).split("|")
+
+    edit_cafe(
+
+        int(values[0]),
+
+        values[1],
+        values[2],
+        values[3],
+        values[4],
+        values[5],
+        values[6]
+
+    )
+
     st.query_params.clear()
 
     st.rerun()
@@ -454,6 +473,110 @@ if "restore" in query_params:
     st.rerun()
 
 cafes_data = get_cafes()
+
+# =========================================================
+# EDIT CAFE
+# =========================================================
+
+def edit_cafe(
+    cafe_id,
+    name,
+    location,
+    facebook_url,
+    instagram_url,
+    messenger_url,
+    map_url
+):
+
+    conn = get_connection()
+
+    c = conn.cursor()
+
+    c.execute("""
+
+    UPDATE cafes
+
+    SET
+
+    name=?,
+    location=?,
+
+    facebook_url=?,
+    instagram_url=?,
+    messenger_url=?,
+    map_url=?
+
+    WHERE id=?
+
+    """, (
+
+        name,
+        location,
+
+        facebook_url,
+        instagram_url,
+        messenger_url,
+        map_url,
+
+        cafe_id
+
+    ))
+
+    conn.commit()
+
+    conn.close()
+
+# =========================================================
+# EDIT CAFE
+# =========================================================
+
+def edit_cafe(
+    cafe_id,
+    name,
+    location,
+    facebook_url,
+    instagram_url,
+    messenger_url,
+    map_url
+):
+
+    conn = get_connection()
+
+    c = conn.cursor()
+
+    c.execute("""
+
+    UPDATE cafes
+
+    SET
+
+    name=?,
+    location=?,
+
+    facebook_url=?,
+    instagram_url=?,
+    messenger_url=?,
+    map_url=?
+
+    WHERE id=?
+
+    """, (
+
+        name,
+        location,
+
+        facebook_url,
+        instagram_url,
+        messenger_url,
+        map_url,
+
+        cafe_id
+
+    ))
+
+    conn.commit()
+
+    conn.close()
 
 # =========================================================
 # SIDEBAR
