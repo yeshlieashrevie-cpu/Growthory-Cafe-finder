@@ -123,58 +123,29 @@ def seed_starter_cafes():
 
         cafes = [
 
-            (
-                "Yardstick Coffee",
-                "Makati",
-                "https://facebook.com",
-                "https://instagram.com/yardstickcoffee",
-                "https://m.me",
-                "https://maps.google.com",
-                3.1,
-                12.4,
-                18,
-                json.dumps([2,3,4,3,4]),
-                json.dumps([8,12,10,15,11]),
-                json.dumps([100,120,130,145,163]),
-                "main",
-                datetime.now().isoformat()
-            ),
+cafes = [
 
-            (
-                "The Curator Coffee",
-                "Makati",
-                "https://facebook.com",
-                "https://instagram.com",
-                "https://m.me",
-                "https://maps.google.com",
-                5.2,
-                6.8,
-                4,
-                json.dumps([5,6,5,7,5]),
-                json.dumps([6,7,6,8,7]),
-                json.dumps([200,203,205,207,211]),
-                "main",
-                datetime.now().isoformat()
-            ),
+("Yardstick Coffee","Makati","https://facebook.com","https://instagram.com/yardstickcoffee","https://m.me","https://maps.google.com",3.1,12.4,18,json.dumps([2,3,4,3,4]),json.dumps([8,12,10,15,11]),json.dumps([100,120,130,145,163]),"main",datetime.now().isoformat()),
 
-            (
-                "Commune",
-                "Makati",
-                "https://facebook.com",
-                "https://instagram.com",
-                "https://m.me",
-                "https://maps.google.com",
-                7.3,
-                3.2,
-                -2,
-                json.dumps([8,7,9,8,7]),
-                json.dumps([3,4,2,4,3]),
-                json.dumps([500,490,485,480,478]),
-                "main",
-                datetime.now().isoformat()
-            )
+("The Curator Coffee","Makati","https://facebook.com","https://instagram.com","https://m.me","https://maps.google.com",5.2,6.8,4,json.dumps([5,6,5,7,5]),json.dumps([6,7,6,8,7]),json.dumps([200,203,205,207,211]),"main",datetime.now().isoformat()),
 
-        ]
+("Commune","Makati","https://facebook.com","https://instagram.com","https://m.me","https://maps.google.com",7.3,3.2,-2,json.dumps([8,7,9,8,7]),json.dumps([3,4,2,4,3]),json.dumps([500,490,485,480,478]),"main",datetime.now().isoformat()),
+
+("Bo's Coffee","Taguig","https://facebook.com","https://instagram.com","https://m.me","https://maps.google.com",4.4,7.0,11,json.dumps([4,5,4,6,5]),json.dumps([6,7,8,8,7]),json.dumps([120,130,145,150,161]),"main",datetime.now().isoformat()),
+
+("Pickup Coffee","Pasig","https://facebook.com","https://instagram.com","https://m.me","https://maps.google.com",2.2,13.2,20,json.dumps([2,2,3,2,3]),json.dumps([12,13,15,14,12]),json.dumps([300,330,340,350,370]),"main",datetime.now().isoformat()),
+
+("Coffee Project","Quezon City","https://facebook.com","https://instagram.com","https://m.me","https://maps.google.com",6.2,5.1,1,json.dumps([5,6,7,6,7]),json.dumps([4,5,6,5,5]),json.dumps([600,602,603,604,605]),"main",datetime.now().isoformat()),
+
+("Single Origin","BGC","https://facebook.com","https://instagram.com","https://m.me","https://maps.google.com",3.8,9.1,14,json.dumps([3,4,4,5,4]),json.dumps([8,9,10,10,9]),json.dumps([400,410,430,440,454]),"main",datetime.now().isoformat()),
+
+("Seattle's Best","Makati","https://facebook.com","https://instagram.com","https://m.me","https://maps.google.com",4.1,7.4,8,json.dumps([4,4,5,4,5]),json.dumps([6,7,8,7,8]),json.dumps([500,505,512,520,528]),"main",datetime.now().isoformat()),
+
+("Tomo Coffee","Pasay","https://facebook.com","https://instagram.com","https://m.me","https://maps.google.com",5.7,4.0,-1,json.dumps([6,6,5,7,6]),json.dumps([4,4,3,5,4]),json.dumps([800,799,798,796,795]),"main",datetime.now().isoformat()),
+
+("Starbucks Reserve","BGC","https://facebook.com","https://instagram.com","https://m.me","https://maps.google.com",2.5,15.3,30,json.dumps([2,2,2,3,2]),json.dumps([12,14,15,16,15]),json.dumps([1000,1020,1050,1075,1100]),"main",datetime.now().isoformat())
+
+]
 
         c.executemany("""
 
