@@ -460,13 +460,35 @@ if "reject" in query_params:
         "rejected"
     )
 
+    query_params = st.query_params
+
+
+if "delete" in query_params:
+
+    ids = str(
+        query_params["delete"]
+    )
+
+    cafe_ids = [
+
+        int(x)
+
+        for x in ids.split(",")
+
+    ]
+
+    for cafe_id in cafe_ids:
+
+        delete_cafe(
+            cafe_id
+        )
+
     st.query_params.clear()
 
     st.rerun()
 
-    if "delete" in query_params:
 
-    if "edit" in query_params:
+if "edit" in query_params:
 
     values = str(
         query_params["edit"]
@@ -483,6 +505,22 @@ if "reject" in query_params:
         values[5],
         values[6]
 
+    )
+
+    st.query_params.clear()
+
+    st.rerun()
+
+
+if "restore" in query_params:
+
+    cafe_id = int(
+        query_params["restore"]
+    )
+
+    update_cafe_status(
+        cafe_id,
+        "main"
     )
 
     st.query_params.clear()
