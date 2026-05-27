@@ -1,8 +1,0 @@
-streamlit
-flask
-flask-cors
-requests
-python-dotenv
-pandas
-sqlalchemy
-apscheduler
