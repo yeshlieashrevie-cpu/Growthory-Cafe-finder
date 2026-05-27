@@ -348,12 +348,13 @@ function renderCafeCard(cafe){
                 ⌖
             </button>
 
-            <button
-                class="social-btn message"
-                data-url="${cafe.messenger_url}"
-            >
-                ✉
-            </button>
+<button
+    class="social-btn"
+    data-type="maps"
+    data-url="${cafe.map_url}"
+>
+    Maps
+</button>
 
         </div>
 
@@ -576,6 +577,11 @@ checkbox.addEventListener(
 const socialButtons =
     card.querySelectorAll(".social-btn")
 
+const mobileFrame =
+    document.getElementById(
+        "mobile-frame"
+    )
+
 socialButtons.forEach(btn=>{
 
     btn.addEventListener(
@@ -585,20 +591,45 @@ socialButtons.forEach(btn=>{
             const url =
                 btn.dataset.url
 
-            if(
-                !url ||
-                url==="https://facebook.com" ||
-                url==="https://instagram.com" ||
-                url==="https://maps.google.com" ||
-                url==="https://m.me"
-            ){
+            const type =
+                btn.dataset.type
+
+            if(!url){
 
                 showToast(
-                    "No profile available."
+                    "No link available."
                 )
 
                 return
             }
+
+            // =========================================
+            // GOOGLE MAPS → INSIDE MOBILE POPUP
+            // =========================================
+
+            if(type==="maps"){
+
+                document
+                .querySelector(
+                    ".mobile-preview"
+                )
+                .scrollIntoView({
+                    behavior:"smooth"
+                })
+
+                mobileFrame.src =
+                    url
+
+                showToast(
+                    "Opening map preview..."
+                )
+
+                return
+            }
+
+            // =========================================
+            // FACEBOOK / INSTAGRAM
+            // =========================================
 
             window.open(
                 url,
