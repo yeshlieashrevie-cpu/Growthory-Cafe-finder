@@ -392,6 +392,111 @@ def get_cafes():
     return cafes
 
 # =========================================================
+# FETCH REAL CAFES
+# =========================================================
+
+def fetch_real_cafes():
+
+    url = (
+        "https://maps.googleapis.com/maps/api/place/textsearch/json"
+    )
+
+    params = {
+
+        "query":
+        "coffee shops in Metro Manila",
+
+        "key":
+        GOOGLE_API_KEY
+
+    }
+
+    response = requests.get(
+        url,
+        params=params
+    )
+
+    data = response.json()
+
+    results = data.get(
+        "results",
+        []
+    )
+
+    conn = get_connection()
+
+    c = conn.cursor()
+
+    # ============================================
+    # CLEAR OLD AUTO-FETCHED CAFES
+    # ============================================
+
+    c.execute("""
+
+    DELETE FROM cafes
+
+    WHERE location LIKE '%Philippines%'
+
+    """)
+
+    conn.commit()
+
+    conn.close()
+
+    added = 0
+
+    for cafe in results[:10]:
+
+        try:
+
+            name = cafe.get(
+                "name",
+                "Unknown Cafe"
+            )
+
+            address = cafe.get(
+                "formatted_address",
+                ""
+            )
+
+            place_id = cafe.get(
+                "place_id",
+                ""
+            )
+
+            maps_url = (
+
+                "https://www.google.com/maps/place/?q=place_id:"
+
+                + place_id
+
+            )
+
+            add_cafe(
+
+                name,
+
+                address,
+
+                "",
+
+                "",
+
+                "",
+
+                maps_url
+
+            )
+
+            added += 1
+
+        except:
+
+            pass
+
+    return added
+
+# =========================================================
 # GOOGLE PLACES SEARCH
 # =========================================================
 
@@ -635,6 +740,20 @@ with st.sidebar:
         "Total Cafes",
         cafes_count
     )
+
+st.markdown("---")
+
+if st.button(
+    "Refresh Real Cafes"
+):
+
+    total = fetch_real_cafes()
+
+    st.success(
+        f"{total} real cafes fetched."
+    )
+
+    st.rerun()
 
 st.markdown("---")
 
