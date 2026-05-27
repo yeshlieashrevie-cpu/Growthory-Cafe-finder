@@ -1,3 +1,4 @@
+import requests
 import json
 import sqlite3
 import streamlit as st
@@ -50,6 +51,7 @@ footer{
 # =========================================================
 
 DB_NAME = "cafes.db"
+GOOGLE_API_KEY = "AIzaSyD2WLVOKT7iJ3X7grl0gUdDWma7rpe5Hj4"
 
 # =========================================================
 # DATABASE CONNECTION
@@ -390,6 +392,65 @@ def get_cafes():
     return cafes
 
 # =========================================================
+# GOOGLE PLACES SEARCH
+# =========================================================
+
+def search_real_cafes(location):
+
+    url = (
+        "https://maps.googleapis.com/maps/api/place/textsearch/json"
+    )
+
+    params = {
+
+        "query": f"coffee shops in {location}",
+
+        "key": GOOGLE_API_KEY
+
+    }
+
+    response = requests.get(
+        url,
+        params=params
+    )
+
+    data = response.json()
+
+    results = data.get(
+        "results",
+        []
+    )
+
+    for cafe in results:
+
+        name = cafe.get(
+            "name",
+            "Unknown Cafe"
+        )
+
+        address = cafe.get(
+            "formatted_address",
+            ""
+        )
+
+        maps_url = (
+            f"https://www.google.com/maps/place/?q=place_id:{cafe.get('place_id')}"
+        )
+
+        add_cafe(
+
+            name,
+            address,
+
+            "",
+            "",
+            "",
+
+            maps_url
+
+        )
+
+# =========================================================
 # INITIALIZE DATABASE
 # =========================================================
 
@@ -574,6 +635,33 @@ with st.sidebar:
         "Total Cafes",
         cafes_count
     )
+
+st.markdown("---")
+
+st.subheader(
+    "Discover Real Cafes"
+)
+
+search_location = st.text_input(
+    "City or Area",
+    placeholder="Makati"
+)
+
+if st.button(
+    "Search Real Cafes"
+):
+
+    if search_location:
+
+        search_real_cafes(
+            search_location
+        )
+
+        st.success(
+            "Real cafes added."
+        )
+
+        st.rerun()
 
 # =========================================================
 # LOAD FRONTEND FILES
